@@ -4,6 +4,7 @@ mod desc;
 mod diag;
 mod layout;
 mod plan;
+mod render;
 mod richtext;
 mod style;
 mod template;
@@ -11,7 +12,7 @@ mod text;
 mod timepoint;
 mod units;
 
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -94,17 +95,38 @@ fn main() -> ExitCode {
     let plan = plan::plan(&desc_name, &desc, &style, &texts, &mut fonts, &mut diags);
     report(&diags);
 
-    // Rendering arrives in milestone 5.
+    let png = match render::render(&plan, &style) {
+        Ok(png) => png,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let output = cli.output.expect("clap requires output");
+    let written = if output == "-" {
+        std::io::stdout()
+            .write_all(&png)
+            .and_then(|()| std::io::stdout().flush())
+    } else {
+        std::fs::write(&output, &png)
+    };
+    if let Err(e) = written {
+        eprintln!("error: can't write {output}: {e}");
+        return ExitCode::FAILURE;
+    }
+
     let px = style.pixels_per_point;
+    let plural = |n: usize, word: &str| format!("{n} {word}{}", if n == 1 { "" } else { "s" });
     eprintln!(
-        "timeliner: laid out {}×{} px ({} events, {} jogs, {} warnings); rendering is not implemented yet",
+        "timeliner: wrote {} ({}×{} px, {}, {}, {})",
+        if output == "-" { "<stdout>" } else { &output },
         (plan.width * px).round(),
         (plan.height * px).round(),
-        desc.events.len(),
-        plan.geometry.jogs,
-        diags.warnings.len()
+        plural(desc.events.len(), "event"),
+        plural(plan.geometry.jogs, "jog"),
+        plural(diags.warnings.len(), "warning"),
     );
-    ExitCode::from(2)
+    ExitCode::SUCCESS
 }
 
 /// Reads a file, or stdin for "-". Read failures are reported as errors.

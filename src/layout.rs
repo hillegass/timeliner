@@ -97,6 +97,8 @@ pub struct Geometry {
 pub struct EventGeom {
     pub marker_x: f64,
     pub stop_x: Option<f64>,
+    // Read by tests; rendering works from the rectangles directly.
+    #[allow(dead_code)]
     pub side: Side,
     pub rect: Rect,
     /// From the marker's edge to the box: 2 points if straight, 4 with a jog.

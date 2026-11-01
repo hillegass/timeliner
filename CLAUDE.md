@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 timeliner [--style=<style.json>] <desc.json> <output.png>
 ```
 
-Status: milestones 1–4 of `docs/PLAN.md` are done: the tool loads and validates its input, builds and measures each event's text, and lays out the page, but doesn't render yet, and exits with code 2 after valid input. Add crates only when a milestone needs them.
+Status: milestones 1–5 of `docs/PLAN.md` are done: the tool renders PNGs end to end. Add crates only when a milestone needs them.
 
 ## Architecture
 
@@ -26,6 +26,8 @@ Status: milestones 1–4 of `docs/PLAN.md` are done: the tool loads and validate
 - `text.rs`: parley text layout in points (scale 1). Fonts in `assets/fonts/` are compiled in with `include_bytes!` and registered with fontique, so they win over system fonts with the same name; system fonts remain available. `Fonts::rich` lays out each markdown block as its own parley layout (list markers are separate layouts in a hanging column) and widens the wrap width to the longest word when needed.
 - `plan.rs`: measures the title, subtitle, event text, and rotated end labels, then calls the layout. Its `Plan` is everything rendering needs.
 - `layout.rs`: pure geometry (see `docs/DESIGN.md`, "Layout algorithm"). Tests use made-up box sizes; `random_layouts_are_sound` checks the hard rules (no overlapping boxes, inside the margins, connectors orthogonal and meeting the box's left edge) on random input. Run `cargo test --release layout` to time it; `many_events` prints the time for 60 events.
+- `render.rs`: draws a `Plan` with vello_cpu, in points under a `pixels_per_point` transform, and encodes the PNG. Text is drawn from parley glyph runs. End labels are rotated −90°. vello_cpu limits images to 65,535 px per side.
+- `tests/cli.rs`: end-to-end tests that run the binary.
 - `units.rs`: length parsing (`pt`, `px`, `in`, `mm`, `cm`). A bare number is an error.
 - `examples/civil-war.json5`: the reference example, also loaded by a unit test.
 
@@ -36,6 +38,10 @@ Status: milestones 1–4 of `docs/PLAN.md` are done: the tool loads and validate
 - `docs/QUESTIONS.md`: open decisions. When one is answered, move it into SPEC or DESIGN
 - `docs/PLAN.md`: milestones and status
 - `docs/TOOL_DESCRIPTION.md`: how the tool is described to Claude agents. Keep it in sync with the CLI
+
+## Checking output visually
+
+Render an example and read the PNG to look at it: `cargo run --release -- examples/civil-war.json5 /tmp/out.png`.
 
 ## Commands
 
