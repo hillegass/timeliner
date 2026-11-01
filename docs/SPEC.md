@@ -117,7 +117,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
 | `rect_line_color` / `rect_fill_color` | `"#1f3a68"` (dark blue) / `"#e3ecf7"` (light blue) | Event box stroke and fill |
 | `rect_line_width` | `"1pt"` | Event box stroke width |
-| `rect_margin` | `"10pt"` | Padding between box edge and text |
+| `rect_margin` | `"7pt"` | Padding between box edge and text |
 | `max_event_width` | `6` | A number N: no event box may be wider than `image_width / N`, including its `rect_margin` |
 | `rect_gap` | `"8pt"` | Minimum empty space between any two event boxes, horizontally and vertically |
 | `rounded_corner` | `"5pt"` | Corner radius of event boxes |
@@ -128,9 +128,9 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `connector_width` | `"1pt"` | Thickness of connector lines |
 | `connector_corner` | `"5pt"` | Radius of the rounded bends where a connector jogs. Reduced automatically if a segment is too short |
 | `connector_dashed` | `false` | Draw connectors dashed. The dash pattern scales with `connector_width`: dashes 4× and gaps 3× the width |
-| `marker` | `"dot"` | Event marker shape: `"dot"`, `"square"`, `"diamond"`, `"bar"`, or `"none"` |
+| `marker` | `"diamond"` | Event marker shape: `"dot"`, `"square"`, `"diamond"`, `"bar"`, or `"none"` |
 | `marker_color` | `"#1f3a68"` (dark blue) | Event marker color |
-| `marker_size` | `"12pt"` | Marker size: the diameter of a dot, the side of a square, the width and height of a diamond (corner to corner), or the length of a bar |
+| `marker_size` | `"8pt"` | Marker size: the diameter of a dot, the side of a square, the width and height of a diamond (corner to corner), or the length of a bar |
 | `event_text_size` | `"10pt"` | Event box text size |
 
 Example `event_text` (from the Civil War example, written in `desc.json`):

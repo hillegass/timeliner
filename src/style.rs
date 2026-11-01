@@ -38,7 +38,7 @@ pub const DEFAULT_STYLE: &str = r##"// timeliner's default style. A style file m
   rect_fill_color: "#e3ecf7",
   rect_line_width: "1pt",
   // Padding between a box's edge and its text.
-  rect_margin: "10pt",
+  rect_margin: "7pt",
   // No box is wider than image_width / max_event_width (a single long word may
   // widen it, with a warning).
   max_event_width: 6,
@@ -57,9 +57,9 @@ pub const DEFAULT_STYLE: &str = r##"// timeliner's default style. A style file m
   connector_corner: "5pt",
   connector_dashed: false,
   // Marker shape: "dot", "square", "diamond", "bar", or "none".
-  marker: "dot",
+  marker: "diamond",
   marker_color: "#1f3a68",
-  marker_size: "12pt",
+  marker_size: "8pt",
   // Size of event text and end labels.
   event_text_size: "10pt",
 }
@@ -360,7 +360,7 @@ mod tests {
         let s = load(None, &mut d).expect("default style is valid");
         assert_eq!(s.image_width, 792.0);
         assert_eq!(s.image_width * s.pixels_per_point, 2376.0);
-        assert_eq!(s.marker, Marker::Dot);
+        assert_eq!(s.marker, Marker::Diamond);
         assert_eq!(s.timeline_color, Color::BLACK);
         let blue = s.marker_color.to_rgba8();
         assert_eq!((blue.r, blue.g, blue.b), (0x1f, 0x3a, 0x68));
@@ -368,13 +368,13 @@ mod tests {
 
     #[test]
     fn partial_override_and_hex() {
-        let (s, d) = load_text(r##"{marker_color: "#8a2391", marker: "diamond"}"##);
+        let (s, d) = load_text(r##"{marker_color: "#8a2391", marker: "square"}"##);
         assert!(d.errors.is_empty(), "{:?}", d.errors);
         let s = s.unwrap();
         let c = s.marker_color.to_rgba8();
         assert_eq!((c.r, c.g, c.b), (0x8a, 0x23, 0x91));
-        assert_eq!(s.marker, Marker::Diamond);
-        assert_eq!(s.marker_size, 12.0);
+        assert_eq!(s.marker, Marker::Square);
+        assert_eq!(s.marker_size, 8.0);
     }
 
     #[test]
