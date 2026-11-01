@@ -2,6 +2,8 @@ mod content;
 mod datefmt;
 mod desc;
 mod diag;
+mod layout;
+mod plan;
 mod richtext;
 mod style;
 mod template;
@@ -89,35 +91,18 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    // Measure each event's text; boxes add rect_margin on every side.
-    let max_text = (style.image_width / style.max_event_width - 2.0 * style.rect_margin) as f32;
-    let text_style = text::TextStyle {
-        family: &style.default_font_family,
-        mono_family: &style.monospace_font_family,
-        size: style.event_text_size as f32,
-        bold: false,
-        ink: text::Ink::default(),
-    };
-    let mut largest = (0.0f32, 0.0f32);
-    for (event, rich) in desc.events.iter().zip(&texts) {
-        let m = fonts.rich(rich, text_style, max_text);
-        if m.overflowed {
-            diags.warning(&desc_name, &event.path(), format!(
-                "a word is wider than the box limit (image_width / max_event_width), so the box was widened to {:.0}pt",
-                m.width as f64 + 2.0 * style.rect_margin
-            ));
-        }
-        largest.0 = largest.0.max(m.width);
-        largest.1 = largest.1.max(m.height);
-    }
+    let plan = plan::plan(&desc_name, &desc, &style, &texts, &mut fonts, &mut diags);
     report(&diags);
 
-    // Rendering arrives in later milestones.
+    // Rendering arrives in milestone 5.
+    let px = style.pixels_per_point;
     eprintln!(
-        "timeliner: input is valid ({} events, largest text {:.0}×{:.0}pt); rendering is not implemented yet",
+        "timeliner: laid out {}×{} px ({} events, {} jogs, {} warnings); rendering is not implemented yet",
+        (plan.width * px).round(),
+        (plan.height * px).round(),
         desc.events.len(),
-        largest.0,
-        largest.1
+        plan.geometry.jogs,
+        diags.warnings.len()
     );
     ExitCode::from(2)
 }
