@@ -5,6 +5,7 @@ edition = "2024"
 rust-version = "1.89"
 description = "Render timelines of dated events as PNG images; designed for use by AI agents"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/hillegass/timeliner"
 readme = "README.md"
 keywords = ["timeline", "png", "chart", "cli", "agents"]
 categories = ["command-line-utilities", "visualization"]

@@ -8,11 +8,13 @@ Claude made this image with timeliner. The whole request was *"Make a timeline o
 
 ## Install
 
-You need Rust 1.89 or later. Clone this repository, then run:
+You need Rust 1.89 or later. Then run:
 
 ```
-cargo install --path .
+cargo install --git https://github.com/hillegass/timeliner
 ```
+
+Or clone this repository and run `cargo install --path .` inside it.
 
 The fonts (Open Sans and Inconsolata) are built into the binary, so the same input gives the same image on every machine.
 
