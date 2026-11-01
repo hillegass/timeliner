@@ -43,7 +43,7 @@ fn renders_the_civil_war_example() {
         "{stderr}"
     );
     let (w, h) = png_size(&std::fs::read(&out).unwrap());
-    assert_eq!(w, 1584);
+    assert_eq!(w, 2376);
     assert!(h > 500, "{h}");
 }
 
@@ -56,7 +56,7 @@ fn stdin_to_stdout() {
     let stderr = String::from_utf8_lossy(&o.stderr);
     assert!(o.status.success(), "{stderr}");
     assert!(stderr.contains("wrote <stdout>"), "{stderr}");
-    assert_eq!(png_size(&o.stdout).0, 1584);
+    assert_eq!(png_size(&o.stdout).0, 2376);
 }
 
 #[test]

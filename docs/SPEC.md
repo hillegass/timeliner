@@ -20,7 +20,7 @@ timeliner [--style=<style.json>] <desc.json> <output.png>
 - `--` keeps its usual meaning (end of options), so `timeliner -- -odd-name.json out.png` works.
 - On success, after any warnings, exactly one summary line goes to stderr:
   ```
-  timeliner: wrote out.png (1584×1120 px, 12 events, 2 jogs, 0 warnings)
+  timeliner: wrote out.png (2376×821 px, 12 events, 10 jogs, 0 warnings)
   ```
   When writing to stdout, the name is shown as `<stdout>`.
 - Exit code is 0 on success and non-zero on any error. Errors go to stderr. Nothing goes to stdout except the PNG when stdout output is selected.
@@ -99,7 +99,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 
 | Key | Default | Meaning |
 |---|---|---|
-| `pixels_per_point` | `2` | Pixels per point in the output |
+| `pixels_per_point` | `3` | Pixels per point in the output |
 | `image_width` | `"792pt"` | Total image width (11 in, the long side of US Letter). The timeline spans from `left_margin` to `image_width - right_margin` |
 | `default_font_family` | `"Open Sans"` | Font family: an embedded font (Open Sans, Inconsolata) or any installed system font |
 | `monospace_font_family` | `"Inconsolata"` | Font for `` `code` `` spans in event text. Same lookup rules as `default_font_family` |
@@ -107,7 +107,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `top_margin` / `bottom_margin` | `"16pt"` | Page margins |
 | `left_margin` / `right_margin` | `"48pt"` | Page margins |
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
-| `rect_line_color` / `rect_fill_color` | `"#1f3a68"` (dark blue) / `"#ebebeb"` (light gray) | Event box stroke and fill |
+| `rect_line_color` / `rect_fill_color` | `"#1f3a68"` (dark blue) / `"#e3ecf7"` (light blue) | Event box stroke and fill |
 | `rect_line_width` | `"1pt"` | Event box stroke width |
 | `rect_margin` | `"10pt"` | Padding between box edge and text |
 | `max_event_width` | `6` | A number N: no event box may be wider than `image_width / N`, including its `rect_margin` |
@@ -147,7 +147,7 @@ event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:
 
 ## Rendering
 
-- **Width:** `image_width × pixels_per_point`, which is 1584 px with the defaults.
+- **Width:** `image_width × pixels_per_point`, which is 2376 px with the defaults.
 - **Height:** exactly `top_margin` + content + `bottom_margin`. There is no minimum height, and the content is never empty, because the timeline is always drawn.
 - **Timeline:** a solid horizontal line from the left margin to the right margin, drawn in `timeline_color` at `timeline_width`. It never fades. Time maps linearly from the left end to the right end.
 - **Open ends:** if `start` (or `stop`) is omitted:

@@ -13,7 +13,7 @@ pub type Color = AlphaColor<Srgb>;
 /// The default style. Hex and named colors are mixed on purpose so both
 /// parsing paths are always exercised.
 pub const DEFAULT_STYLE: &str = r##"{
-  pixels_per_point: 2,
+  pixels_per_point: 3,
   image_width: "792pt",
   default_font_family: "Open Sans",
   monospace_font_family: "Inconsolata",
@@ -24,7 +24,7 @@ pub const DEFAULT_STYLE: &str = r##"{
   right_margin: "48pt",
   event_text_place: "alternating",
   rect_line_color: "#1f3a68",
-  rect_fill_color: "#ebebeb",
+  rect_fill_color: "#e3ecf7",
   rect_line_width: "1pt",
   rect_margin: "10pt",
   max_event_width: 6,
@@ -338,7 +338,7 @@ mod tests {
         let mut d = Diagnostics::default();
         let s = load(None, &mut d).expect("default style is valid");
         assert_eq!(s.image_width, 792.0);
-        assert_eq!(s.image_width * s.pixels_per_point, 1584.0);
+        assert_eq!(s.image_width * s.pixels_per_point, 2376.0);
         assert_eq!(s.marker, Marker::Dot);
         assert_eq!(s.timeline_color, Color::BLACK);
         let blue = s.marker_color.to_rgba8();
