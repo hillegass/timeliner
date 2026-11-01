@@ -42,6 +42,10 @@ const JUDGE: Costs = Costs {
 
 /// The search is greedy, and small changes in its weights send it down
 /// different paths, so it runs with several and the best result is kept.
+/// What each point of a box's distance from the line adds to a finished
+/// layout's score.
+const DISTANCE_COST: f64 = 0.1;
+
 const SEARCHES: [Costs; 3] = [
     Costs {
         jog: 12.0,
@@ -86,7 +90,7 @@ pub struct Input {
 
 #[derive(Debug, Clone)]
 pub struct EventIn {
-    /// Used in warnings.
+    /// Names the event in warnings, e.g. `events[3] "Shiloh"`.
     pub name: String,
     pub start: i128,
     /// Set when the event shows a range.
@@ -264,6 +268,14 @@ pub fn layout(input: &Input) -> Geometry {
                 ]
             })
             .chain([staircase(&order, &xs, input, &obstacles, &m)])
+            .collect::<Vec<_>>();
+        // Local improvement is the slow part, so it only polishes the two
+        // most promising layouts.
+        let mut best = best;
+        best.sort_by_key(SideLayout::score);
+        best.truncate(2);
+        let best = best
+            .into_iter()
             .map(|l| improve(l, &xs, input, &obstacles, &m))
             .min_by_key(SideLayout::score)
             .expect("several layouts");
@@ -357,15 +369,15 @@ struct SideLayout {
 }
 
 impl SideLayout {
-    /// Lower is better: fewer problems, then less height (with sideways jog
-    /// travel counted as height), then fewer jogs.
+    /// Lower is better: fewer problems, then less height (with jogs counted
+    /// as height, and a little for every box's distance from the line, so a
+    /// box moves closer even when the side's height doesn't change), then
+    /// fewer jogs.
     fn score(&self) -> (usize, i64, usize) {
         let jogs = self.jogs as f64 * JUDGE.jog + JUDGE.per_point * self.shift;
-        (
-            self.warnings.len(),
-            ((self.extent + jogs) * 100.0) as i64,
-            self.jogs,
-        )
+        let distance: f64 = self.placed.iter().map(|p| p.rect.d0).sum();
+        let cost = self.extent + jogs + DISTANCE_COST * distance;
+        (self.warnings.len(), (cost * 100.0) as i64, self.jogs)
     }
 }
 
@@ -384,6 +396,9 @@ fn improve(
     if !layout.warnings.is_empty() {
         return layout;
     }
+    // Pair moves are costly on crowded sides; cap them by count (not time,
+    // so output is the same on every machine).
+    let mut pair_budget = PAIR_BUDGET;
     for _ in 0..IMPROVE_PASSES {
         let mut changed = false;
         for k in 0..layout.placed.len() {
@@ -394,7 +409,7 @@ fn improve(
                 .filter(|p| p.index != i)
                 .cloned()
                 .collect();
-            let mut best: Option<SideLayout> = None;
+            let mut best: Option<(Vec<Placed>, (usize, i64, usize))> = None;
             for c in candidates(
                 i,
                 xs[i],
@@ -410,15 +425,50 @@ fn improve(
                 }
                 let mut placed = others.clone();
                 placed.insert(k.min(placed.len()), c.placed);
-                let trial = summarize(placed, obstacles, &input.events, m);
-                let target = best.as_ref().map_or(layout.score(), SideLayout::score);
-                if trial.score() < target {
-                    best = Some(trial);
+                // Candidates are clean, so the score needs no full check.
+                let score = clean_score(&placed, obstacles, m);
+                if score < best.as_ref().map_or(layout.score(), |b| b.1) {
+                    best = Some((placed, score));
                 }
             }
-            if let Some(b) = best {
-                layout = b;
+            if let Some((placed, _)) = best {
+                layout = summarize(placed, obstacles, &input.events, m);
                 changed = true;
+            }
+        }
+        // Pairs of nearby boxes: moving one may only work if a neighbor
+        // moves too (e.g. its connector runs where the first box would go).
+        for a in 0..layout.placed.len() {
+            let ia = layout.placed[a].index;
+            let e = &input.events[ia];
+            // Where this box would ideally be: first row, straight.
+            let x0 = (xs[ia] - m.attach).clamp(m.left, (m.right - e.width).max(m.left));
+            let ideal = SRect {
+                x0,
+                x1: x0 + e.width,
+                d0: m.base,
+                d1: m.base + e.height,
+            }
+            .grow(m.gap);
+            if (layout.placed[a].rect.d0 - m.base).abs() < 0.01 && layout.placed[a].path.len() == 2
+            {
+                continue;
+            }
+            for b in 0..layout.placed.len() {
+                let ib = layout.placed[b].index;
+                // Only neighbors in the way of that ideal spot can help.
+                let pb = &layout.placed[b];
+                if a == b || !(pb.rect.overlaps(&ideal) || path_hits_rect(&pb.path, &ideal)) {
+                    continue;
+                }
+                if pair_budget == 0 {
+                    continue;
+                }
+                pair_budget -= 1;
+                if let Some(better) = move_pair(&layout, ia, ib, xs, input, obstacles, m) {
+                    layout = better;
+                    changed = true;
+                }
             }
         }
         if !changed {
@@ -428,7 +478,79 @@ fn improve(
     layout
 }
 
+/// Takes boxes `a` and `b` out, puts `a` back in one of its cheapest clean
+/// spots, then `b` in its best clean spot, and returns the result if the
+/// side scores better than `layout`.
+fn move_pair(
+    layout: &SideLayout,
+    a: usize,
+    b: usize,
+    xs: &[f64],
+    input: &Input,
+    obstacles: &[SRect],
+    m: &Metrics,
+) -> Option<SideLayout> {
+    let others: Vec<Placed> = layout
+        .placed
+        .iter()
+        .filter(|p| p.index != a && p.index != b)
+        .cloned()
+        .collect();
+    let clean = |i: usize, placed: &[Placed]| {
+        let mut c: Vec<Candidate> = candidates(
+            i,
+            xs[i],
+            &input.events[i],
+            placed,
+            obstacles,
+            &[],
+            m,
+            &JUDGE,
+        )
+        .into_iter()
+        .filter(|c| c.violations == 0)
+        .collect();
+        c.sort_by(|x, y| (x.placed.rect.d1 + x.penalty).total_cmp(&(y.placed.rect.d1 + y.penalty)));
+        c
+    };
+    let mut best: Option<(Vec<Placed>, (usize, i64, usize))> = None;
+    for ca in clean(a, &others).into_iter().take(PAIR_TRIES) {
+        let mut with_a = others.clone();
+        with_a.push(ca.placed);
+        for cb in clean(b, &with_a).into_iter().take(PAIR_TRIES) {
+            let mut placed = with_a.clone();
+            placed.push(cb.placed);
+            let score = clean_score(&placed, obstacles, m);
+            if score < best.as_ref().map_or(layout.score(), |b| b.1) {
+                best = Some((placed, score));
+            }
+        }
+    }
+    best.map(|(placed, _)| summarize(placed, obstacles, &input.events, m))
+}
+
+/// The score of a layout known to be clean, without checking it.
+fn clean_score(placed: &[Placed], obstacles: &[SRect], m: &Metrics) -> (usize, i64, usize) {
+    let jogged = || placed.iter().filter(|p| p.path.len() > 2);
+    SideLayout {
+        placed: placed.to_vec(),
+        warnings: Vec::new(),
+        extent: placed
+            .iter()
+            .map(|p| p.rect.d1)
+            .chain(obstacles.iter().map(|o| o.d1))
+            .fold(m.stem, f64::max),
+        jogs: jogged().count(),
+        shift: jogged().map(|p| (p.path[2].0 - p.path[1].0).abs()).sum(),
+    }
+    .score()
+}
+
 const IMPROVE_PASSES: usize = 4;
+/// Most pair moves tried per side.
+const PAIR_BUDGET: usize = 150;
+/// How many of each box's cheapest spots a pair move tries.
+const PAIR_TRIES: usize = 4;
 
 /// Builds a `SideLayout` (extent, jogs, warnings) from placed boxes.
 fn summarize(
@@ -843,24 +965,30 @@ fn skyline(x0: f64, x1: f64, h: f64, placed: &[Placed], obstacles: &[SRect], m: 
 /// boxes are placed right to left, and a later event jogging left must pass
 /// beneath the jogs already placed to its right.
 fn lanes(d0: f64, placed: &[Placed], m: &Metrics) -> Vec<f64> {
-    let mut out = Vec::new();
-    let mut lane = m.stem + m.corner.max(m.clear);
-    while lane <= d0 - m.corner.max(m.clear) + 1e-9 {
-        out.push(lane);
+    let margin = m.corner.max(m.clear);
+    // The band next to the line, beneath the nearest row of boxes (a few
+    // lanes deep at most: candidates may sit farther out to widen it).
+    let top = d0.min(m.base + 3.0 * m.lane_step) - margin;
+    let mut band = Vec::new();
+    let mut lane = m.stem + margin;
+    while lane <= top + 1e-9 {
+        band.push(lane);
         lane += m.lane_step;
     }
-    for p in placed {
-        let l = p.rect.d1 + m.gap / 2.0;
-        if l <= d0 - m.corner {
-            out.push(l);
-        }
-    }
+    // Just beyond each box nearer the line, nearest to this box first.
+    let mut beyond: Vec<f64> = placed
+        .iter()
+        .map(|p| p.rect.d1 + m.gap / 2.0)
+        .filter(|&l| l <= d0 - m.corner && l > top)
+        .collect();
+    beyond.sort_by(|a, b| b.total_cmp(a));
+    beyond.dedup_by(|a, b| (*a - *b).abs() < 0.5);
+    beyond.truncate(MAX_LANES);
+    band.reverse();
+    let mut out: Vec<f64> = beyond.into_iter().chain(band).collect();
     if out.is_empty() {
         out.push((m.stem + d0) / 2.0);
     }
-    out.sort_by(|a, b| b.total_cmp(a));
-    out.dedup_by(|a, b| (*a - *b).abs() < 0.5);
-    out.truncate(MAX_LANES);
     out
 }
 
@@ -966,7 +1094,7 @@ fn check_side(
     events: &[EventIn],
     m: &Metrics,
 ) -> Vec<String> {
-    let name = |p: &Placed| format!("\"{}\"", events[p.index].name);
+    let name = |p: &Placed| events[p.index].name.clone();
     let mut out = Vec::new();
     for (i, a) in placed.iter().enumerate() {
         if a.rect.x0 < m.left - 0.01 || a.rect.x1 > m.right + 0.01 {
@@ -1137,7 +1265,7 @@ mod tests {
         assert!(
             g.warnings
                 .iter()
-                .any(|w| w.contains("\"e0\"") && w.contains("\"e1\"")),
+                .any(|w| w.contains("e0") && w.contains("e1")),
             "{:?}",
             g.warnings
         );

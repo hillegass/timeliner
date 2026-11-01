@@ -93,7 +93,11 @@ Implemented in `src/layout.rs` as pure geometry in points, with no fonts or pixe
      - *Where a candidate box can go:* hanging from its marker; beside a nearby box; with its connector threading the gap beside a box; or against a margin. Each position is tried at the nearest distance where it fits (a skyline over placed boxes and connectors) and a few lanes farther out.
      - *How a candidate is scored:* the height it adds, a jog cost, and a look-ahead cost for each not-yet-placed marker on this side that the box covers. A covered marker forces its event to jog or move out.
    - **A staircase** that is always clean unless markers nearly coincide, at the cost of height. It works right to left; each box hangs straight just beyond the boxes and connectors beneath it. Boxes that must shift left at the right margin jog left past the covering boxes, each in a lower lane, so the jogs nest instead of crossing.
-   - **Local improvement** runs on each result: each box in turn is taken out and put back in its best clean spot given all the others, and the change is kept if the side's score improves. This repeats until nothing improves (at most 4 passes). It fixes choices the greedy search couldn't see past.
+   - **Local improvement** polishes the two best results, repeating up to 4 passes until nothing improves. Its moves:
+     - **Single moves:** take each box out in turn, put it back in its best clean spot given all the others, and keep the change if the side's score improves.
+     - **Pair moves:** move two boxes together, for a box that isn't in its ideal spot (first row, straight) and a neighbor whose box or connector is in the way. This is how 9:47 in `examples/murder.json` reaches the first row: 10:10's connector has to jog around it. Pair moves are capped at 150 per side, counted rather than timed so output is the same on every machine.
+   - **Score:** the side's height, plus jog costs, plus 0.1 × each box's distance from the line. The last term lets a box move closer even when the side's height doesn't change.
+   - **Jog lanes:** jogs run in the band next to the line (a few lanes deep) or just beyond a nearer box.
 6. **Vertical stacking:** the line's y is `top_margin` + the farthest extent above the line. The page height adds the farthest extent below the line plus `bottom_margin`.
 7. **Checker:** `check_side` reports boxes that overlap or leave the margins, connectors that touch or cross, and connectors that cross another event's box. The layout is drawn regardless, and each problem becomes a warning.
 

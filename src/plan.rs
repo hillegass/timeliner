@@ -127,7 +127,7 @@ pub fn plan(
             .iter()
             .zip(&event_texts)
             .map(|(e, m)| EventIn {
-                name: e.label.clone(),
+                name: e.path(),
                 start: e.start.instant,
                 stop: e.stop.as_ref().filter(|_| e.shows_stop).map(|t| t.instant),
                 width: f64::from(m.width) + 2.0 * style.rect_margin,

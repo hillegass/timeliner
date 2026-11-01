@@ -390,7 +390,10 @@ mod tests {
 
     #[test]
     fn empty_blocks_are_dropped() {
-        let t = render("**{label}**\n\n{duration}\n\n`{content}`", &[("label", "Call"), ("duration", "4 min"), ("content", "")]);
+        let t = render(
+            "**{label}**\n\n{duration}\n\n`{content}`",
+            &[("label", "Call"), ("duration", "4 min"), ("content", "")],
+        );
         assert_eq!(t.blocks.len(), 2);
         assert_eq!(t.blocks[1].runs, vec![run("4 min", PLAIN)]);
         let t = render("- {a}\n- {b}", &[("a", ""), ("b", "x")]);
