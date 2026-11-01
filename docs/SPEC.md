@@ -107,7 +107,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `top_margin` / `bottom_margin` | `"32pt"` | Page margins |
 | `left_margin` / `right_margin` | `"48pt"` | Page margins |
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
-| `rect_line_color` / `rect_fill_color` | `"black"` / `"#ebebeb"` (light gray) | Event box stroke and fill |
+| `rect_line_color` / `rect_fill_color` | `"#1f3a68"` (dark blue) / `"#ebebeb"` (light gray) | Event box stroke and fill |
 | `rect_line_width` | `"1pt"` | Event box stroke width |
 | `rect_margin` | `"10pt"` | Padding between box edge and text |
 | `max_event_width` | `6` | A number N: no event box may be wider than `image_width / N`, including its `rect_margin` |

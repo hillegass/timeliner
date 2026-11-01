@@ -23,7 +23,7 @@ pub const DEFAULT_STYLE: &str = r##"{
   left_margin: "48pt",
   right_margin: "48pt",
   event_text_place: "alternating",
-  rect_line_color: "black",
+  rect_line_color: "#1f3a68",
   rect_fill_color: "#ebebeb",
   rect_line_width: "1pt",
   rect_margin: "10pt",

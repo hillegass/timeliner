@@ -35,8 +35,8 @@ impl Costs {
 /// How finished layouts are compared: boxes close to the line are worth
 /// some jogging.
 const JUDGE: Costs = Costs {
-    jog: 12.0,
-    per_point: 0.5,
+    jog: 4.0,
+    per_point: 0.15,
     cover: 0.0,
 };
 
