@@ -266,6 +266,7 @@ pub fn layout(input: &Input) -> Geometry {
                 ]
             })
             .chain([staircase(&order, &xs, input, &obstacles, &m)])
+            .map(|l| improve(l, &xs, input, &obstacles, &m))
             .min_by_key(SideLayout::score)
             .expect("several layouts");
         extents[si] = extents[si].max(best.extent);
@@ -367,6 +368,92 @@ impl SideLayout {
             ((self.extent + jogs) * 100.0) as i64,
             self.jogs,
         )
+    }
+}
+
+/// Local search after the beam: take each box out in turn, put it back in
+/// its best spot given all the others, and keep the change if the whole
+/// side scores better. Repeats until nothing improves. This fixes choices
+/// the greedy search couldn't see past, such as a box left far from the
+/// line after its neighbors settled.
+fn improve(
+    mut layout: SideLayout,
+    xs: &[f64],
+    input: &Input,
+    obstacles: &[SRect],
+    m: &Metrics,
+) -> SideLayout {
+    if !layout.warnings.is_empty() {
+        return layout;
+    }
+    for _ in 0..IMPROVE_PASSES {
+        let mut changed = false;
+        for k in 0..layout.placed.len() {
+            let i = layout.placed[k].index;
+            let others: Vec<Placed> = layout
+                .placed
+                .iter()
+                .filter(|p| p.index != i)
+                .cloned()
+                .collect();
+            let mut best: Option<SideLayout> = None;
+            for c in candidates(
+                i,
+                xs[i],
+                &input.events[i],
+                &others,
+                obstacles,
+                &[],
+                m,
+                &JUDGE,
+            ) {
+                if c.violations > 0 {
+                    continue;
+                }
+                let mut placed = others.clone();
+                placed.insert(k.min(placed.len()), c.placed);
+                let trial = summarize(placed, obstacles, &input.events, m);
+                let target = best.as_ref().map_or(layout.score(), SideLayout::score);
+                if trial.score() < target {
+                    best = Some(trial);
+                }
+            }
+            if let Some(b) = best {
+                layout = b;
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    layout
+}
+
+const IMPROVE_PASSES: usize = 4;
+
+/// Builds a `SideLayout` (extent, jogs, warnings) from placed boxes.
+fn summarize(
+    placed: Vec<Placed>,
+    obstacles: &[SRect],
+    events: &[EventIn],
+    m: &Metrics,
+) -> SideLayout {
+    let jogged = || placed.iter().filter(|p| p.path.len() > 2);
+    let jogs = jogged().count();
+    let shift = jogged().map(|p| (p.path[2].0 - p.path[1].0).abs()).sum();
+    let extent = placed
+        .iter()
+        .map(|p| p.rect.d1)
+        .chain(obstacles.iter().map(|o| o.d1))
+        .fold(m.stem, f64::max);
+    let warnings = check_side(&placed, obstacles, events, m);
+    SideLayout {
+        placed,
+        warnings,
+        extent,
+        jogs,
+        shift,
     }
 }
 

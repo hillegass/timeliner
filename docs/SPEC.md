@@ -104,7 +104,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `default_font_family` | `"Open Sans"` | Font family: an embedded font (Open Sans, Inconsolata) or any installed system font |
 | `monospace_font_family` | `"Inconsolata"` | Font for `` `code` `` spans in event text. Same lookup rules as `default_font_family` |
 | `background` | `"white"` | Background color |
-| `top_margin` / `bottom_margin` | `"64pt"` | Page margins |
+| `top_margin` / `bottom_margin` | `"32pt"` | Page margins |
 | `left_margin` / `right_margin` | `"48pt"` | Page margins |
 | `title` | `"center"` | Title alignment: `"left"`, `"center"`, or `"right"` (within the margins) |
 | `title_size` / `title_bold` | `"24pt"` / `true` | |
@@ -129,7 +129,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `marker` | `"dot"` | Event marker shape: `"dot"`, `"square"`, `"diamond"`, `"bar"`, or `"none"` |
 | `marker_color` | `"#1f3a68"` (dark blue) | Event marker color |
 | `marker_size` | `"12pt"` | Marker size: the diameter of a dot, the side of a square, the width and height of a diamond (corner to corner), or the length of a bar |
-| `event_text_size` | `"12pt"` | Event box text size |
+| `event_text_size` | `"10pt"` | Event box text size |
 
 Example `event_text` (from the Civil War example, written in `desc.json`):
 

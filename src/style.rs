@@ -18,8 +18,8 @@ pub const DEFAULT_STYLE: &str = r##"{
   default_font_family: "Open Sans",
   monospace_font_family: "Inconsolata",
   background: "white",
-  top_margin: "64pt",
-  bottom_margin: "64pt",
+  top_margin: "32pt",
+  bottom_margin: "32pt",
   left_margin: "48pt",
   right_margin: "48pt",
   title: "center",
@@ -48,7 +48,7 @@ pub const DEFAULT_STYLE: &str = r##"{
   marker: "dot",
   marker_color: "#1f3a68",
   marker_size: "12pt",
-  event_text_size: "12pt",
+  event_text_size: "10pt",
 }
 "##;
 
