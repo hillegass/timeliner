@@ -1,0 +1,31 @@
+{
+  "datetime_format": "%-I:%M %p",
+  "start": "2024-10-18T20:00-04:00",
+  "stop": "2024-10-19T00:00-04:00",
+  "stop_label": "Ted found dead",
+  "shows_stop": true,
+  "event_text": "**{label}: {from} → {to}**\\\n_{start}_\n\n{duration}\n\n`{content}`",
+  "events": [
+    {"label": "Text", "from": "Jim", "to": "Jane", "start": "2024-10-18T20:04-04:00", "duration": "", "content": "Is he home tonight?"},
+    {"label": "Text", "from": "Jane", "to": "Jim", "start": "2024-10-18T20:09-04:00", "duration": "", "content": "Till 9. Then poker at Rick's."},
+    {"label": "Call", "from": "Ted", "to": "Jane", "start": "2024-10-18T20:15-04:00", "stop": "2024-10-18T20:18-04:00", "duration": "3 min", "content": ""},
+    {"label": "Text", "from": "Jane", "to": "Ted", "start": "2024-10-18T20:31-04:00", "duration": "", "content": "Don't forget your wallet."},
+    {"label": "Text", "from": "Ted", "to": "Jane", "start": "2024-10-18T20:58-04:00", "duration": "", "content": "Leaving now. Back by midnight."},
+    {"label": "Text", "from": "Jim", "to": "Jane", "start": "2024-10-18T21:06-04:00", "duration": "", "content": "On my way."},
+    {"label": "Call", "from": "Jane", "to": "Jim", "start": "2024-10-18T21:12-04:00", "stop": "2024-10-18T21:18-04:00", "duration": "6 min", "content": ""},
+    {"label": "Text", "from": "Ted", "to": "Jane", "start": "2024-10-18T21:40-04:00", "duration": "", "content": "Rick cancelled. Heading home."},
+    {"label": "Call", "from": "Jane", "to": "Ted", "start": "2024-10-18T21:42-04:00", "stop": "2024-10-18T21:44-04:00", "duration": "2 min", "content": ""},
+    {"label": "Text", "from": "Jane", "to": "Jim", "start": "2024-10-18T21:45-04:00", "duration": "", "content": "He's coming back. GO."},
+    {"label": "Text", "from": "Jim", "to": "Jane", "start": "2024-10-18T21:47-04:00", "duration": "", "content": "Already parked outside."},
+    {"label": "Call", "from": "Ted", "to": "Jane", "start": "2024-10-18T22:03-04:00", "stop": "2024-10-18T22:04-04:00", "duration": "1 min", "content": ""},
+    {"label": "Text", "from": "Ted", "to": "Jane", "start": "2024-10-18T22:10-04:00", "duration": "", "content": "Whose truck is in the driveway?"},
+    {"label": "Call", "from": "Jane", "to": "Jim", "start": "2024-10-18T22:11-04:00", "stop": "2024-10-18T22:20-04:00", "duration": "9 min", "content": ""},
+    {"label": "Text", "from": "Ted", "to": "Jim", "start": "2024-10-18T22:26-04:00", "duration": "", "content": "I know."},
+    {"label": "Call", "from": "Jim", "to": "Ted", "start": "2024-10-18T22:31-04:00", "stop": "2024-10-18T22:45-04:00", "duration": "14 min", "content": ""},
+    {"label": "Text", "from": "Jim", "to": "Jane", "start": "2024-10-18T22:52-04:00", "duration": "", "content": "It's handled."},
+    {"label": "Text", "from": "Jane", "to": "Jim", "start": "2024-10-18T23:05-04:00", "duration": "", "content": "What does that mean?"},
+    {"label": "Call", "from": "Jane", "to": "Ted", "start": "2024-10-18T23:20-04:00", "stop": "2024-10-18T23:21-04:00", "duration": "1 min, no answer", "content": ""},
+    {"label": "Text", "from": "Jane", "to": "Ted", "start": "2024-10-18T23:34-04:00", "duration": "", "content": "Please call me."},
+    {"label": "Call", "from": "Jim", "to": "Jane", "start": "2024-10-18T23:51-04:00", "stop": "2024-10-18T23:55-04:00", "duration": "4 min", "content": ""}
+  ]
+}

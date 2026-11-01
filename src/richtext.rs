@@ -102,7 +102,12 @@ impl Template {
                     style: *style,
                 });
             }
-            blocks.push(Block { kind: b.kind, runs });
+            // A block whose text is all empty (e.g. a field that's blank for
+            // this event) is left out, so one template can serve events with
+            // different fields.
+            if runs.iter().any(|r| !r.text.trim().is_empty()) {
+                blocks.push(Block { kind: b.kind, runs });
+            }
         }
         if errors.is_empty() {
             Ok(RichText { blocks })
@@ -381,6 +386,15 @@ mod tests {
         assert_eq!(t.blocks[0].runs, vec![run("one two\nthree", PLAIN)]);
         assert_eq!(t.blocks[1].runs, vec![run("Head", PLAIN)]);
         assert_eq!(t.blocks[2].runs, vec![run("link", PLAIN)]);
+    }
+
+    #[test]
+    fn empty_blocks_are_dropped() {
+        let t = render("**{label}**\n\n{duration}\n\n`{content}`", &[("label", "Call"), ("duration", "4 min"), ("content", "")]);
+        assert_eq!(t.blocks.len(), 2);
+        assert_eq!(t.blocks[1].runs, vec![run("4 min", PLAIN)]);
+        let t = render("- {a}\n- {b}", &[("a", ""), ("b", "x")]);
+        assert_eq!(t.blocks.len(), 1);
     }
 
     #[test]

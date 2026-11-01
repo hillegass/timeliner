@@ -143,6 +143,7 @@ event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:
    - **Dates:** `spec` is a strftime format, e.g. `{start:%b %Y}`. An explicit format always wins over `datetime_format` and over the precision rule for partial dates. `{start:%B %-d, %Y}` on `1066` shows the midpoint, "July 2, 1066", because that's what was asked for. BCE years still display as "N BCE".
    - **Booleans** display as `true` / `false` and take string format specs.
    - **Literal braces:** `{{` and `}}`.
+   - **Empty blocks are left out:** a paragraph or list item whose text is empty after substitution isn't drawn. Events that lack some detail can set that field to `""` (Aaron's murder example: calls have an empty `content`, texts an empty `duration`).
    - **Errors:** an unknown field, or a spec that doesn't fit the value's type (e.g. `,d` on a string), is an error naming the event, field, and spec.
 
 ## Rendering

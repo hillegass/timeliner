@@ -92,3 +92,15 @@ fn licenses() {
     assert!(o.status.success());
     assert!(String::from_utf8_lossy(&o.stdout).contains("SIL OPEN FONT LICENSE"));
 }
+
+/// The dense phone-records example lays out cleanly. It's rendered with the
+/// default style, because `examples/darkmode.json` names Helvetica, which
+/// isn't installed everywhere.
+#[test]
+fn renders_the_murder_example() {
+    let o = timeliner(&["examples/murder.json", "-"], None);
+    let stderr = String::from_utf8_lossy(&o.stderr);
+    assert!(o.status.success(), "{stderr}");
+    assert!(stderr.contains("21 events") && stderr.contains("0 warnings"), "{stderr}");
+    assert_eq!(png_size(&o.stdout).0, 2376);
+}
