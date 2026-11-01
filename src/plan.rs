@@ -19,6 +19,18 @@ pub struct Plan {
     pub geometry: Geometry,
 }
 
+impl Plan {
+    /// True if some text has characters the loaded fonts can't draw.
+    pub fn has_missing_glyphs(&self) -> bool {
+        self.event_texts
+            .iter()
+            .chain(&self.start_label)
+            .chain(&self.stop_label)
+            .flat_map(|m| &m.pieces)
+            .any(|p| crate::text::missing_glyphs(&p.layout))
+    }
+}
+
 pub fn ink(c: Color) -> Ink {
     Ink(c.components)
 }

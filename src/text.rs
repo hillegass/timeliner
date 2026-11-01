@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use parley::fontique::Blob;
+use parley::fontique::{Blob, Collection, CollectionOptions};
 use parley::{
     Alignment, AlignmentOptions, FontContext, FontFamily, FontStyle, FontWeight, Layout,
     LayoutContext, StyleProperty,
@@ -22,6 +22,9 @@ const EMBEDDED_FONTS: &[&[u8]] = &[
     include_bytes!("../assets/fonts/Inconsolata-Regular.ttf"),
     include_bytes!("../assets/fonts/Inconsolata-Bold.ttf"),
 ];
+
+/// The families those files provide.
+const EMBEDDED_FAMILIES: &[&str] = &["Open Sans", "Inconsolata"];
 
 /// The license texts the OFL requires to travel with the fonts.
 pub const FONT_LICENSES: &str = concat!(
@@ -44,6 +47,7 @@ const LIST_INDENT: f32 = 1.25;
 pub struct Fonts {
     font_cx: FontContext,
     layout_cx: LayoutContext<Ink>,
+    system: bool,
 }
 
 /// One laid-out piece of text, positioned relative to its text block's top-left.
@@ -78,8 +82,25 @@ pub struct TextStyle<'a> {
 
 impl Fonts {
     /// Loads the embedded fonts and checks that the style's families exist.
+    /// System fonts are only scanned (which takes a noticeable fraction of a
+    /// second) when the style names a family that isn't embedded.
     pub fn new(style: &Style) -> Result<Fonts, Vec<String>> {
-        let mut font_cx = FontContext::new();
+        let embedded = [&style.default_font_family, &style.monospace_font_family]
+            .iter()
+            .all(|f| EMBEDDED_FAMILIES.contains(&f.as_str()));
+        Fonts::with_system(style, !embedded)
+    }
+
+    /// Like `new`, choosing whether to include system fonts. They're also
+    /// needed when the text has characters the embedded fonts lack.
+    pub fn with_system(style: &Style, system: bool) -> Result<Fonts, Vec<String>> {
+        let mut font_cx = FontContext {
+            collection: Collection::new(CollectionOptions {
+                shared: false,
+                system_fonts: system,
+            }),
+            ..FontContext::default()
+        };
         for data in EMBEDDED_FONTS {
             font_cx
                 .collection
@@ -103,7 +124,12 @@ impl Fonts {
         Ok(Fonts {
             font_cx,
             layout_cx: LayoutContext::new(),
+            system,
         })
+    }
+
+    pub fn uses_system(&self) -> bool {
+        self.system
     }
 
     /// Lays out one piece of styled text. Each `(range, bold, italic, code)`
@@ -236,6 +262,17 @@ impl Fonts {
             overflowed,
         }
     }
+}
+
+/// True if any character in `layout` has no glyph in the fonts available,
+/// so it would be drawn as an empty box.
+pub fn missing_glyphs(layout: &Layout<Ink>) -> bool {
+    layout.lines().any(|line| {
+        line.items().any(|item| match item {
+            parley::PositionedLayoutItem::GlyphRun(run) => run.glyphs().any(|g| g.id == 0),
+            _ => false,
+        })
+    })
 }
 
 /// A " (did you mean ...)" hint from the available family names.
@@ -386,6 +423,31 @@ mod tests {
             "{errs:?}"
         );
         assert!(errs[0].contains("\"Open Sans\""), "{errs:?}");
+    }
+
+    #[test]
+    fn system_fonts_only_when_needed() {
+        let f = fonts();
+        assert!(
+            !f.uses_system(),
+            "the default style needs only embedded fonts"
+        );
+        let mut d = Diagnostics::default();
+        let mut s = crate::style::load(None, &mut d).unwrap();
+        s.monospace_font_family = "No Such Mono".into();
+        // An unknown family is looked for among system fonts too.
+        assert!(Fonts::new(&s).is_err());
+    }
+
+    #[test]
+    fn detects_missing_glyphs() {
+        let mut f = fonts();
+        assert!(!missing_glyphs(&f.plain(
+            "Gettysburg • 1,754",
+            style(12.0),
+            None
+        )));
+        assert!(missing_glyphs(&f.plain("東京", style(12.0), None)));
     }
 
     #[test]

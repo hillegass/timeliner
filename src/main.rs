@@ -92,7 +92,29 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let plan = plan::plan(&desc_name, &desc, &style, &texts, &mut fonts, &mut diags);
+    let mut plan_diags = Diagnostics::default();
+    let mut plan = plan::plan(
+        &desc_name,
+        &desc,
+        &style,
+        &texts,
+        &mut fonts,
+        &mut plan_diags,
+    );
+    // Characters the embedded fonts lack (e.g. CJK) need system fonts.
+    if !fonts.uses_system() && plan.has_missing_glyphs() {
+        fonts = text::Fonts::with_system(&style, true).expect("the embedded families exist");
+        plan_diags = Diagnostics::default();
+        plan = plan::plan(
+            &desc_name,
+            &desc,
+            &style,
+            &texts,
+            &mut fonts,
+            &mut plan_diags,
+        );
+    }
+    diags.warnings.extend(plan_diags.warnings);
     report(&diags);
 
     let png = match render::render(&plan, &style) {
