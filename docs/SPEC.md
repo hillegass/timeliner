@@ -104,7 +104,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `default_font_family` | `"Open Sans"` | Font family: an embedded font (Open Sans, Inconsolata) or any installed system font |
 | `monospace_font_family` | `"Inconsolata"` | Font for `` `code` `` spans in event text. Same lookup rules as `default_font_family` |
 | `background` | `"white"` | Background color |
-| `top_margin` / `bottom_margin` | `"32pt"` | Page margins |
+| `top_margin` / `bottom_margin` | `"16pt"` | Page margins |
 | `left_margin` / `right_margin` | `"48pt"` | Page margins |
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
 | `rect_line_color` / `rect_fill_color` | `"#1f3a68"` (dark blue) / `"#ebebeb"` (light gray) | Event box stroke and fill |
