@@ -12,34 +12,55 @@ pub type Color = AlphaColor<Srgb>;
 
 /// The default style. Hex and named colors are mixed on purpose so both
 /// parsing paths are always exercised.
-pub const DEFAULT_STYLE: &str = r##"{
+pub const DEFAULT_STYLE: &str = r##"// timeliner's default style. A style file may set any subset of these keys.
+// Lengths need a unit: pt, px, in, mm, or cm (1in = 72pt; px are output
+// pixels). Colors are CSS names ("white") or hex ("#1f3a68", "#1f3a6880").
+{
+  // Output resolution. The image is image_width × pixels_per_point pixels wide.
   pixels_per_point: 3,
+  // Total image width. The height is whatever the content needs.
   image_width: "792pt",
+  // Font families: "Open Sans" and "Inconsolata" are built in; any installed
+  // font also works.
   default_font_family: "Open Sans",
+  // For `code` spans in event text.
   monospace_font_family: "Inconsolata",
   background: "white",
   top_margin: "16pt",
   bottom_margin: "16pt",
+  // The line runs from left_margin to image_width - right_margin.
   left_margin: "24pt",
   right_margin: "24pt",
+  // Where event boxes go: "alternating" (above, below, ...), "above", or "below".
   event_text_place: "alternating",
+  // Event box outline and background.
   rect_line_color: "#1f3a68",
   rect_fill_color: "#e3ecf7",
   rect_line_width: "1pt",
+  // Padding between a box's edge and its text.
   rect_margin: "10pt",
+  // No box is wider than image_width / max_event_width (a single long word may
+  // widen it, with a warning).
   max_event_width: 6,
+  // Minimum space between boxes.
   rect_gap: "8pt",
+  // Corner radius of boxes.
   rounded_corner: "5pt",
+  // Color of event text and end labels.
   text_color: "black",
+  // The line and its end markers.
   timeline_color: "black",
   timeline_width: "2pt",
+  // Lines from markers to boxes. connector_corner rounds their bends.
   connector_color: "#1f3a68",
   connector_width: "1pt",
   connector_corner: "5pt",
   connector_dashed: false,
+  // Marker shape: "dot", "square", "diamond", "bar", or "none".
   marker: "dot",
   marker_color: "#1f3a68",
   marker_size: "12pt",
+  // Size of event text and end labels.
   event_text_size: "10pt",
 }
 "##;

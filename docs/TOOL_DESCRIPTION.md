@@ -1,32 +1,43 @@
 # Describing timeliner to Claude
 
-## Draft description
+## Tool description
 
-This text could go in a system prompt, a `SKILL.md`, or a tool definition's `description`. Update it once the open questions are decided.
+Use this text in a system prompt or a tool definition's `description`. `skill/timeliner/SKILL.md` contains the same information packaged as a Claude Code skill.
 
-> **timeliner**: renders a horizontal timeline chart as a PNG.
+> **timeliner** renders a horizontal timeline of dated events as a PNG.
 >
-> Use it when the user wants a visual timeline of dated events (history, project milestones, biographies). Don't use it for charts of quantities over time; use a plotting tool for those.
+> Use it when the user wants a visual timeline: history, project milestones, a biography, or a sequence of calls and messages. Don't use it for quantities over time; use a plotting tool for those.
 >
-> Usage: `timeliner [--style=style.json] desc.json out.png`. Use `-` for the input to read from stdin, or for the output to write the PNG to stdout.
+> Usage: `timeliner [--style=style.json] desc.json out.png`. Use `-` for desc.json to read stdin, or for out.png to write the PNG to stdout.
 >
-> `desc.json` has optional `start`/`stop` (ISO dates, the ends of the timeline; a missing end is drawn as an arrow), optional `start_label`/`stop_label`, `datetime_format` (strftime), and `events`. Each event is `{"label", "start", "stop"?, ...}` plus any extra fields you want to show. Set `shows_stop: true` (top level, or per event) to draw each event's start–stop range on the line.
+> **Learn the formats by running it:**
+> - `timeliner --help`: a complete guide.
+> - `timeliner --print-example`: a working description file.
+> - `timeliner --print-default-style`: every style key, with comments.
+> - `timeliner --schema desc|style`: JSON Schema for each file.
 >
-> The text in each event's box comes from the `event_text` template in desc.json (default: the bold label, then the date). It is markdown (bold, italic, `` `code` ``, `-` and `1.` lists) with Python-style fields such as `{label}`, `{start}`, and `{casualties:,d}`. Every field the template uses must exist on every event.
+> **The description file** (JSON5, so strict JSON also works) holds `events`, a list of `{label, start, stop?, ...}`, plus these optional keys:
+> - `start`/`stop`: the timeline's ends. A missing end is drawn as an arrow.
+> - `start_label`/`stop_label`: labels at the ends.
+> - `datetime_format`: strftime format for dates.
+> - `time_zone`: IANA zone to display times in.
+> - `shows_stop`: draw each event's start–stop range on the line.
+> - `event_text`: markdown template for each event's box.
 >
-> Run `timeliner --print-example` for a complete working example and `timeliner --print-default-style` for every style key. The image is 2376 px wide by default and exactly as tall as its contents. Read the PNG afterwards to check it.
+> **Event text.** In `event_text`, `{key}` inserts any key of the event. Numbers take Python format specs (`{killed:,d}`) and dates take strftime (`{start:%b %Y}`). A paragraph that comes out empty is dropped, so events lacking a detail can set it to `""`.
 >
-> The image has no title; put the title and caption in the surrounding document.
+> **Dates** can be a year (`1066`), a year-month, a date, or a date-time with or without a zone (`2024-03-05T14:32-05:00`). Years 0 and below are BCE (`-0043` is 44 BCE).
 >
-> Errors name the JSON path at fault (e.g. `events[3].start: invalid date "1862-13-01"`). Fix the input and run it again.
+> **No title.** The image has none; put the title and caption in the surrounding document.
+>
+> **Output.** Errors, warnings, and a summary line go to stderr. Each error names the JSON path at fault, e.g. `events[3].start: invalid date "1862-13-01"`; fix the input and run again. Crowded timelines are still drawn, with a warning per problem and a hint line about how to make room. Look at the PNG to check it.
 
-## What makes the tool easier for Claude to use
+## What makes the tool easy for Claude to use
 
-1. **Self-describing CLI.** `--help` with a complete example, `--print-example`, `--print-default-style`, and `--schema` (JSON Schema for both files). Claude can find out how to use the tool by running it, instead of relying on a long prompt.
-2. **Forgiving input, strict validation.** Accept JSON5 so small syntax slips don't fail the run. Reject unknown keys (`marker_colour`) with a "did you mean" hint, since silently ignoring them is the worst failure mode for an agent.
-3. **Actionable errors.** Every error gives the JSON path, the bad value, and what's expected. Use one line per error and report all errors at once, not just the first.
-4. **Deterministic output.** Embedded fonts and no GPU, so the same input gives the same pixels on every machine.
-5. **Success summary on stderr.** For example: `timeliner: wrote out.png (2376×821 px, 12 events, 10 jogs, 0 warnings)`. It lets the agent check the result without opening the image, while still encouraging a visual check.
-6. **Best effort with clear warnings.** If events are too crowded for clean connectors, still write the image, but print one warning per problem that names the events and gives a hint (e.g. use `event_text_place: "alternating"` or increase `image_width`). Claude can then decide whether to adjust and run again.
-7. **Familiar conventions.** CommonMark markdown, Python format specs, strftime dates, CSS colors. Claude already knows all of these, so the description can stay short.
-8. **Ship it as a Claude Code skill.** A `SKILL.md` containing the description above plus one example lets Claude load it only when timelines come up.
+1. **Self-describing.** `--help`, `--print-example`, `--print-default-style`, and `--schema` let Claude learn the formats by running the tool, so the description can stay short. The printed default style is itself a valid style file to edit.
+2. **Forgiving input, strict validation.** JSON5 tolerates small syntax slips. Unknown keys are errors with a "did you mean" hint (`marker_colour`), and keys that were removed say why (`title`), because silently ignoring a key is the worst failure for an agent.
+3. **Actionable errors, all at once.** Every error gives the JSON path, the bad value, and what's expected. A problem that affects every event is reported once ("in all 12 events").
+4. **Deterministic output.** The fonts are embedded and rendering is on the CPU. Layout search effort is capped by counting work, not time. The same input gives the same image everywhere, unless the style names an installed system font.
+5. **A summary line,** e.g. `timeliner: wrote out.png (2376×821 px, 12 events, 10 jogs, 0 warnings)`, so the result can be checked before viewing the image.
+6. **Best effort with clear warnings.** Crowding never stops the image from being written. Warnings name the events involved (`events[10] "Spotsylvania Court House"`), and a hint lists the style changes that make room.
+7. **Familiar conventions.** CommonMark, Python format specs, strftime, CSS colors, and JSON Schema are all things Claude already knows.

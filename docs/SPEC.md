@@ -23,7 +23,15 @@ timeliner [--style=<style.json>] <desc.json> <output.png>
   timeliner: wrote out.png (2376×821 px, 12 events, 10 jogs, 0 warnings)
   ```
   When writing to stdout, the name is shown as `<stdout>`.
-- Exit code is 0 on success and non-zero on any error. Errors go to stderr. Nothing goes to stdout except the PNG when stdout output is selected.
+- Information flags print to stdout and exit without needing any files:
+  - `--help`: a complete guide to both file formats, with examples (`-h` gives a summary).
+  - `--print-example`: the Civil War description file.
+  - `--print-default-style`: the default style, every key commented. It's itself a valid style file.
+  - `--schema desc` / `--schema style`: JSON Schema (draft 2020-12) for each file.
+  - `--licenses`: the embedded fonts' licenses.
+  - `--version`.
+- Exit code is 0 on success, 1 for problems with the input files, and 2 for command-line mistakes (clap's convention).
+- Errors go to stderr. Nothing goes to stdout except the PNG when stdout output is selected, or the text an information flag prints.
 
 ## Input format
 

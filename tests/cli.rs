@@ -107,3 +107,67 @@ fn renders_the_murder_example() {
     );
     assert_eq!(png_size(&o.stdout).0, 2376);
 }
+
+#[test]
+fn print_example_round_trips() {
+    let example = timeliner(&["--print-example"], None);
+    assert!(example.status.success());
+    let text = String::from_utf8(example.stdout).unwrap();
+    let o = timeliner(&["-", "-"], Some(&text));
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+}
+
+#[test]
+fn print_default_style_is_a_valid_style() {
+    let style = timeliner(&["--print-default-style"], None);
+    let text = String::from_utf8(style.stdout).unwrap();
+    assert!(
+        text.contains("// Marker shape"),
+        "the printed style is commented"
+    );
+    let path = std::env::temp_dir().join("timeliner-default-style.json5");
+    std::fs::write(&path, text).unwrap();
+    let o = timeliner(
+        &[&format!("--style={}", path.display()), "-", "-"],
+        Some(r#"{start: 1, stop: 2, events: []}"#),
+    );
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+}
+
+#[test]
+fn schemas_are_json() {
+    for which in ["desc", "style"] {
+        let o = timeliner(&["--schema", which], None);
+        assert!(o.status.success());
+        let v: serde_json::Value = serde_json::from_slice(&o.stdout).expect("valid JSON");
+        assert_eq!(v["type"], "object");
+    }
+    assert_eq!(
+        timeliner(&["--schema", "nope"], None).status.code(),
+        Some(2)
+    );
+}
+
+#[test]
+fn help_explains_the_formats() {
+    let o = timeliner(&["--help"], None);
+    let help = String::from_utf8_lossy(&o.stdout);
+    for needle in [
+        "DESCRIPTION FILE",
+        "event_text",
+        "--print-default-style",
+        "Examples:",
+    ] {
+        assert!(help.contains(needle), "--help should mention {needle}");
+    }
+}
+
+/// The description-file example inside --help is itself valid input.
+#[test]
+fn help_example_renders() {
+    let help = String::from_utf8(timeliner(&["--help"], None).stdout).unwrap();
+    let start = help.find("\n  {\n").expect("example start") + 1;
+    let end = help[start..].find("\n  }\n").expect("example end") + start + 4;
+    let o = timeliner(&["-", "-"], Some(&help[start..end]));
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+}

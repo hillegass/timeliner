@@ -1,6 +1,6 @@
 # timeliner — Plan
 
-Status: milestones 1–5 done (2026-11-01). Milestone 6 is next.
+Status: milestones 1–6 done (2026-11-01). Milestone 7 is next.
 
 ## Milestones
 
@@ -13,7 +13,7 @@ Status: milestones 1–5 done (2026-11-01). Milestone 6 is next.
 4. ✅ **Layout engine.** Pure geometry, the invariant checker, and unit tests that use fake box sizes. This includes dense clusters and events at both ends.
 5. ✅ **Rendering.** `vello_cpu` scene to PNG, then render the Civil War example end to end.
    - Done when: the output is checked visually by reading the PNG.
-6. **Agent ergonomics.** Write `--help` with examples, `--print-default-style`, `--print-example`, `--schema`, and stderr summaries. Finalize `TOOL_DESCRIPTION.md`.
+6. ✅ **Agent ergonomics.** Write `--help` with examples, `--print-default-style`, `--print-example`, `--schema`, and stderr summaries. Finalize `TOOL_DESCRIPTION.md`.
 7. **Regression tests.** Golden image tests for a few example timelines in `examples/`.
 
 ## Docs

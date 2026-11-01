@@ -8,7 +8,7 @@ use crate::timepoint::{self, TimePoint, kind};
 
 pub const DEFAULT_EVENT_TEXT: &str = "**{label}**\n\n{start}";
 
-const TOP_KEYS: &[&str] = &[
+pub const TOP_KEYS: &[&str] = &[
     "datetime_format",
     "time_zone",
     "start",
