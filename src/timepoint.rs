@@ -211,6 +211,42 @@ fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     era * 146_097 + doe - 719_468
 }
 
+/// The inverse of `days_from_civil`: (year, month, day) for a day number.
+fn civil_from_days(z: i64) -> (i64, i64, i64) {
+    let z = z + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = yoe + era * 400 + i64::from(m <= 2);
+    (y, m, d)
+}
+
+impl TimePoint {
+    /// The wall-clock date and time at this point's instant. For partial
+    /// dates this is the midpoint of the period; for zoned values it is the
+    /// time in UTC, so use the `Zoned` value instead when displaying those.
+    pub fn civil(&self) -> DateTime {
+        let days = self.instant.div_euclid(NANOS_PER_DAY) as i64;
+        let nanos = self.instant.rem_euclid(NANOS_PER_DAY) as i64;
+        let (y, m, d) = civil_from_days(days);
+        let secs = nanos / 1_000_000_000;
+        DateTime::new(
+            y as i16,
+            m as i8,
+            d as i8,
+            (secs / 3600) as i8,
+            (secs / 60 % 60) as i8,
+            (secs % 60) as i8,
+            (nanos % 1_000_000_000) as i32,
+        )
+        .expect("instants come from valid dates in -9999..=9999")
+    }
+}
+
 pub fn kind(v: &Value) -> &'static str {
     match v {
         Value::Null => "null",
@@ -228,6 +264,28 @@ mod tests {
 
     fn day(s: &str) -> i128 {
         parse(s).unwrap().instant / NANOS_PER_DAY
+    }
+
+    #[test]
+    fn civil_round_trips() {
+        for s in [
+            "1970-01-01",
+            "-9999-01-01",
+            "9999-12-31T23:59:59",
+            "-0043-03-15T12:30",
+            "2024-02-29",
+        ] {
+            let t = parse(s).unwrap();
+            assert_eq!(
+                parse(&t.civil().to_string()).unwrap().instant,
+                t.instant,
+                "{s}"
+            );
+        }
+        assert_eq!(
+            parse("1066").unwrap().civil().to_string(),
+            "1066-07-02T12:00:00"
+        );
     }
 
     #[test]

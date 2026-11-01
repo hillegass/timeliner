@@ -1,6 +1,10 @@
+mod content;
+mod datefmt;
 mod desc;
 mod diag;
+mod richtext;
 mod style;
+mod template;
 mod timepoint;
 mod units;
 
@@ -52,9 +56,12 @@ fn main() -> ExitCode {
         None => style::load(None, &mut diags),
     };
     let desc = desc_text.and_then(|text| desc::load(&desc_name, &text, &mut diags));
+    let texts = desc
+        .as_ref()
+        .and_then(|d| content::event_texts(&desc_name, d, &mut diags));
 
     report(&diags);
-    let (Some(_style), Some(desc)) = (style, desc) else {
+    let (Some(_style), Some(desc), Some(_texts)) = (style, desc, texts) else {
         return ExitCode::FAILURE;
     };
 

@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 timeliner [--style=<style.json>] <desc.json> <output.png>
 ```
 
-Status: milestone 1 of `docs/PLAN.md` is done: the tool loads and validates its input but doesn't render yet, and exits with code 2 after valid input. Add crates only when a milestone needs them.
+Status: milestones 1–2 of `docs/PLAN.md` are done: the tool loads and validates its input and builds each event's text, but doesn't render yet, and exits with code 2 after valid input. Add crates only when a milestone needs them.
 
 ## Architecture
 
@@ -19,6 +19,10 @@ Status: milestone 1 of `docs/PLAN.md` is done: the tool loads and validates its 
 - `style.rs`: `DEFAULT_STYLE` is a JSON5 document and the single source of truth for style keys and defaults. A user's style file is laid over it key by key, so keys not in the default are rejected. All lengths are resolved to points.
 - `desc.rs`: the description file. Events are validated, then cross-checked (zone mixing, range, ordering), then stably sorted by start. Extra event keys are kept in `Event::fields` for template substitution.
 - `timepoint.rs`: date parsing. Every value gets an `instant` in nanoseconds since 1970 for sorting and placement. Zoneless values are measured as if they were UTC, which is valid because zoned and zoneless values can't be mixed. Year and year-month values sit at the midpoint of their period. Calendar math is our own (`days_from_civil`), so year 10000 boundaries work; jiff handles parsing, zones, and offsets.
+- `content.rs`: builds each event's `RichText` from `event_text`. A field error that affects every event is reported once ("in all N events").
+- `richtext.rs`: `Template::parse` turns `event_text` markdown (pulldown-cmark) into blocks of styled runs, merging adjacent same-style text and splitting it into literal and field pieces. `render` substitutes fields afterward, so values can't change formatting. Unsupported markdown is flattened to plain text.
+- `template.rs`: `{field:spec}` parsing and Python's format-spec mini-language. The test cases' expected values come from Python 3's `format()`; check new cases against Python the same way.
+- `datefmt.rs`: date display. strftime via jiff, but `%Y` is replaced by our own year text so years ≤ 0 read "N BCE". Partial dates without an explicit spec show only their input precision.
 - `units.rs`: length parsing (`pt`, `px`, `in`, `mm`, `cm`). A bare number is an error.
 - `examples/civil-war.json5`: the reference example, also loaded by a unit test.
 

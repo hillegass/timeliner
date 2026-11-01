@@ -147,6 +147,7 @@ event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:
    - **`{field}`:** the value with default formatting. Dates use `datetime_format`, and partial dates use their input precision.
    - **Numbers:** `spec` is Python's format-spec mini-language, `[[fill]align][sign][z][#][0][width][grouping][.precision][type]`. For example, `,d` gives 1,754, `.1f` gives 3.1, `.0%` gives 45%, and `>8,` right-aligns in 8 characters. Python's behavior is the reference for tests.
    - **Dates:** `spec` is a strftime format, e.g. `{start:%b %Y}`. An explicit format always wins over `datetime_format` and over the precision rule for partial dates. `{start:%B %-d, %Y}` on `1066` shows the midpoint, "July 2, 1066", because that's what was asked for. BCE years still display as "N BCE".
+   - **Booleans** display as `true` / `false` and take string format specs.
    - **Literal braces:** `{{` and `}}`.
    - **Errors:** an unknown field, or a spec that doesn't fit the value's type (e.g. `,d` on a string), is an error naming the event, field, and spec.
 
