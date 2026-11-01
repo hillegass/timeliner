@@ -75,7 +75,7 @@ Answer: **Yes, one plain-text line** (Aaron, 2026-11-01). Format in `SPEC.md`.
 Answer: **Draw the best attempt and warn.** Use vertical shifting first: in a tight cluster, the outer boxes stay near the line and the middle one moves farther out, with its connector passing between them (Aaron, 2026-11-01). See `DESIGN.md`, layout steps 4 and 6.
 
 **Q20. Reference image.** I can't open the Vizzlo example from here. Could you describe, or save to `docs/reference/`, details I should match: line thickness, whether connectors attach to the box edge or center, and whether boxes have shadows?
-Answer: Saved as `docs/reference/mechanical-engineering-timeline.png` (Aaron, 2026-11-01). Differences from our spec are listed in Q24.
+Answer: Aaron provided Vizzlo's mechanical-engineering timeline image (2026-11-01). It isn't in the repository, because the image is Vizzlo's copyrighted work. Differences from our spec are listed in Q24.
 
 **Q21. Long words.** The defaults are now `image_width` 792pt and `event_text_size` 12pt. A box can then be up to 792 / 6 = 132 pt wide, leaving 112 pt for text: about 17 characters per line, which is enough for most labels. A single word or number wider than that can still happen. Should the box grow to fit it, should the word be broken mid-word, or should it be an error?
 *Recommendation:* let the box grow to fit the word, and warn on stderr.
