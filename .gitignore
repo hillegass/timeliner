@@ -1,1 +1,11 @@
 /target
+
+# OS and editor files
+.DS_Store
+*~
+*.swp
+.idea/
+.vscode/
+
+# Claude Code's per-user settings (shared .claude/ files may be committed)
+.claude/settings.local.json
