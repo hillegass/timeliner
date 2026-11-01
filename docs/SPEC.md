@@ -175,7 +175,7 @@ event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:
   If `stop` is missing or equals `start`, only the single marker is drawn.
 - **Event boxes:** placed according to `event_text_place`. With `"alternating"`, the first event in date order goes above, the next below, and so on. A box is just big enough for its text plus `rect_margin` on every side. Text wraps so that the box is never wider than `image_width / max_event_width`. The one exception is a single word too wide for that limit: the box grows just enough to fit the word on one line, and a warning naming the event goes to stderr. Words are never broken mid-word.
 - **Connectors:** each marker is joined to its box by a line.
-  - The connector always meets its box at the box's **left edge**: on the edge facing the line, at `rounded_corner` in from the left side, where the straight part of the edge begins.
+  - The connector always meets its box at the box's **left edge**: on the edge facing the line, at `rounded_corner` in from the left side (where the straight part of the edge begins), but never less than 5pt, so with square corners the connector doesn't run along the box's edge.
   - Ideally the box is placed so that point is directly above (or below) the marker, and the connector is a single vertical line.
   - If the box has to sit elsewhere (crowding, or the right margin), the connector gets a purely horizontal jog (orthogonal routing), with its two bends rounded to `connector_corner`.
   - Connectors never touch or cross each other or any box other than their own. If crowding makes that impossible, the image is still written and each violation is reported as a warning on stderr.

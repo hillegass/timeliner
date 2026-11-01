@@ -3,10 +3,12 @@
   "monospace_font_family": "Inconsolata",
   "background": "#2b2b2b",
   "rect_fill_color": "black",
-  "rect_line_color": "#ffd60a",
+  "rect_line_color": "#ff9500",
   "text_color": "white",
   "timeline_color": "white",
-  "marker_color": "#ffd60a",
+  "marker_color": "#ff9500",
   "marker_size": "6pt",
-  "connector_color": "#ffd60a"
+  "marker": "diamond",
+  "rounded_corner": "0pt",
+  "connector_color": "#ff9500"
 }

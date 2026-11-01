@@ -14,6 +14,8 @@
 use crate::style::Place;
 
 const NANOS_PER_DAY: f64 = 86_400e9;
+/// The nearest a connector meets a box to the box's left edge.
+const MIN_ATTACH: f64 = 5.0;
 /// Search weights, in points of extra height.
 #[derive(Debug, Clone, Copy)]
 struct Costs {
@@ -204,7 +206,8 @@ pub fn layout(input: &Input) -> Geometry {
         lane_step: input.connector_width * 2.0 + 3.0,
         gap: input.rect_gap,
         corner: input.connector_corner,
-        attach: input.rounded_corner,
+        // Clear of the corner's curve, and never on the box's edge itself.
+        attach: input.rounded_corner.max(MIN_ATTACH),
         left,
         right,
     };
