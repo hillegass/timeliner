@@ -14,17 +14,51 @@
 use crate::style::Place;
 
 const NANOS_PER_DAY: f64 = 86_400e9;
-/// What a jog costs, in points of extra height: a fixed amount plus the
-/// sideways distance, since long jogs are hard to follow.
-const JOG_PENALTY: f64 = 12.0;
-const JOG_COST: f64 = 1.0;
-/// Cost of a box covering the marker of an event not yet placed on its side,
-/// which forces that event to jog or move out.
-const COVER_COST: f64 = 30.0;
-
-fn jog_cost(shift: f64) -> f64 {
-    JOG_PENALTY + JOG_COST * shift
+/// Search weights, in points of extra height.
+#[derive(Debug, Clone, Copy)]
+struct Costs {
+    /// Each jog costs this much...
+    jog: f64,
+    /// ...plus this much per point of sideways travel.
+    per_point: f64,
+    /// A box covering the marker of an event not yet placed on its side,
+    /// which forces that event to jog or move out.
+    cover: f64,
 }
+
+impl Costs {
+    fn jog(&self, shift: f64) -> f64 {
+        self.jog + self.per_point * shift
+    }
+}
+
+/// How finished layouts are compared: boxes close to the line are worth
+/// some jogging.
+const JUDGE: Costs = Costs {
+    jog: 12.0,
+    per_point: 0.5,
+    cover: 0.0,
+};
+
+/// The search is greedy, and small changes in its weights send it down
+/// different paths, so it runs with several and the best result is kept.
+const SEARCHES: [Costs; 3] = [
+    Costs {
+        jog: 12.0,
+        per_point: 0.5,
+        cover: 30.0,
+    },
+    Costs {
+        jog: 12.0,
+        per_point: 1.0,
+        cover: 30.0,
+    },
+    Costs {
+        jog: 8.0,
+        per_point: 0.3,
+        cover: 20.0,
+    },
+];
 
 #[derive(Debug, Clone)]
 pub struct Input {
@@ -214,16 +248,26 @@ pub fn layout(input: &Input) -> Geometry {
             .filter(|&i| sides[i] == side)
             .collect();
         let xs: Vec<f64> = input.events.iter().map(|e| x_of(e.start)).collect();
-        // Try both directions, plus a staircase that is always clean, and
-        // keep the best.
-        let best = [
-            place_side(order.iter().copied(), &xs, input, &obstacles, &m),
-            place_side(order.iter().rev().copied(), &xs, input, &obstacles, &m),
-            staircase(&order, &xs, input, &obstacles, &m),
-        ]
-        .into_iter()
-        .min_by_key(SideLayout::score)
-        .expect("three layouts");
+        // Search in both directions with each set of weights, add a staircase
+        // that is always clean, and keep the best.
+        let best = SEARCHES
+            .iter()
+            .flat_map(|costs| {
+                [
+                    place_side(order.iter().copied(), &xs, input, &obstacles, &m, costs),
+                    place_side(
+                        order.iter().rev().copied(),
+                        &xs,
+                        input,
+                        &obstacles,
+                        &m,
+                        costs,
+                    ),
+                ]
+            })
+            .chain([staircase(&order, &xs, input, &obstacles, &m)])
+            .min_by_key(SideLayout::score)
+            .expect("several layouts");
         extents[si] = extents[si].max(best.extent);
         jogs += best.jogs;
         warnings.extend(best.warnings);
@@ -317,7 +361,7 @@ impl SideLayout {
     /// Lower is better: fewer problems, then less height (with sideways jog
     /// travel counted as height), then fewer jogs.
     fn score(&self) -> (usize, i64, usize) {
-        let jogs = self.jogs as f64 * JOG_PENALTY + JOG_COST * self.shift;
+        let jogs = self.jogs as f64 * JUDGE.jog + JUDGE.per_point * self.shift;
         (
             self.warnings.len(),
             ((self.extent + jogs) * 100.0) as i64,
@@ -332,6 +376,7 @@ fn place_side(
     input: &Input,
     obstacles: &[SRect],
     m: &Metrics,
+    costs: &Costs,
 ) -> SideLayout {
     // Beam search: keep the best few partial layouts, extend each with every
     // candidate position for the next event, and keep the best results.
@@ -356,6 +401,7 @@ fn place_side(
                 obstacles,
                 &future,
                 m,
+                costs,
             );
             children.sort_by(|a, b| {
                 child_key(state, a)
@@ -563,6 +609,7 @@ fn candidates(
     obstacles: &[SRect],
     future: &[f64],
     m: &Metrics,
+    costs: &Costs,
 ) -> Vec<Candidate> {
     let (w, h) = (e.width, e.height);
     let preferred = mx - m.attach;
@@ -609,7 +656,7 @@ fn candidates(
                 .filter(|&&x| x0 - m.clear < x && x < x0 + w + m.clear)
                 .count();
             let penalty =
-                if straight { 0.0 } else { jog_cost(shift) } + COVER_COST * covered as f64;
+                if straight { 0.0 } else { costs.jog(shift) } + costs.cover * covered as f64;
             spots.push((
                 current_extent.max(d0 + h) + penalty,
                 u8::from(!straight),

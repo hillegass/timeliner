@@ -12,3 +12,7 @@ parley = "0.12.0"
 pulldown-cmark = { version = "0.13.6", default-features = false }
 serde_json = "1.0.154"
 vello_cpu = "0.3.0"
+
+# The layout search is slow unoptimized; optimize test builds.
+[profile.test]
+opt-level = 2
