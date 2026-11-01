@@ -1,13 +1,14 @@
 // The Civil War example from the original design discussion, as valid JSON5.
 {
   title: "Twelve Deadliest Civil War Battles",
-  subtitle: "More than 45 Thousand Killed",
-  datetime_format: "%B %d, %Y",
+  subtitle: "Representing 45 thousand killed",
+  datetime_format: "%b %-d, %Y",
   start: "1861-04-12",
   start_label: "Fort Sumter",
   stop: "1865-04-09",
   stop_label: "Appomattox Court House",
-  event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:,d}",
+  // A backslash at the end of a line is a markdown line break.
+  event_text: "**{label}**\\\n_{start}_\n\n- North: {union:,d}\n- South: {confederate:,d}",
   events: [
     {label: "Shiloh", start: "1862-04-06", stop: "1862-04-07", confederate: 1728, union: 1754},
     {label: "Seven Days Battles", start: "1862-06-25", stop: "1862-07-01", confederate: 3494, union: 1734},

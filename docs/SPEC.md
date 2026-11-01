@@ -113,7 +113,7 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `subtitle_size` / `subtitle_bold` | `"18pt"` / `true` | |
 | `subtitle_color` | `"#1f3a68"` (dark blue) | Subtitle text color |
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
-| `rect_line_color` / `rect_fill_color` | `"black"` / `"lightgray"` | Event box stroke and fill |
+| `rect_line_color` / `rect_fill_color` | `"black"` / `"#ebebeb"` (light gray) | Event box stroke and fill |
 | `rect_line_width` | `"1pt"` | Event box stroke width |
 | `rect_margin` | `"10pt"` | Padding between box edge and text |
 | `max_event_width` | `6` | A number N: no event box may be wider than `image_width / N`, including its `rect_margin` |

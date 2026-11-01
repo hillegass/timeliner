@@ -32,7 +32,7 @@ pub const DEFAULT_STYLE: &str = r##"{
   subtitle_color: "#1f3a68",
   event_text_place: "alternating",
   rect_line_color: "black",
-  rect_fill_color: "lightgray",
+  rect_fill_color: "#ebebeb",
   rect_line_width: "1pt",
   rect_margin: "10pt",
   max_event_width: 6,

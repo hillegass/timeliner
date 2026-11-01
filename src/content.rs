@@ -109,7 +109,7 @@ mod tests {
         let t = t.unwrap();
         assert_eq!(
             plain(&t[0]),
-            ["Shiloh: April 06, 1862", "North: 1,754", "South: 1,728"]
+            ["Shiloh\nApr 6, 1862", "North: 1,754", "South: 1,728"]
         );
         assert!(t[0].blocks[0].runs[0].style.bold);
         assert_eq!(
@@ -119,7 +119,7 @@ mod tests {
                 marker: Some(ListMarker::Bullet)
             }
         );
-        assert_eq!(plain(&t[7])[0], "Gettysburg: July 01, 1863");
+        assert_eq!(plain(&t[7])[0], "Gettysburg\nJul 1, 1863");
     }
 
     #[test]
