@@ -1,11 +1,11 @@
 # timeliner — Plan
 
-Work starts only on Aaron's go-ahead. No crates are added until then.
+Status: milestone 1 done (2026-11-01). Milestone 2 is next.
 
 ## Milestones
 
-0. **Spec settled.** Answer `QUESTIONS.md` and fold the answers into `SPEC.md`.
-1. **Skeleton.** Add crates. `clap` CLI with `-`/`--` handling. Load the desc and style files with JSON5 and serde, merge in the default style, and validate with clear errors. Parse units and colors.
+0. ✅ **Spec settled.** Answer `QUESTIONS.md` and fold the answers into `SPEC.md`.
+1. ✅ **Skeleton.** Add crates. `clap` CLI with `-`/`--` handling. Load the desc and style files with JSON5 and serde, merge in the default style, and validate with clear errors. Parse units and colors.
    - Done when: bad input gives a precise error message, and good input is accepted.
 2. **Template and rich text.** f-string substitution plus markdown to styled blocks (paragraphs, lists, bold, italic).
    - Done when: unit tests cover the Civil War template and the edge cases (unknown field, braces, `*` in values).

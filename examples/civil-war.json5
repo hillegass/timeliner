@@ -1,0 +1,25 @@
+// The Civil War example from the original design discussion, as valid JSON5.
+{
+  title: "Twelve Deadliest Civil War Battles",
+  subtitle: "More than 45 Thousand Killed",
+  datetime_format: "%B %d, %Y",
+  start: "1861-04-12",
+  start_label: "Fort Sumter",
+  stop: "1865-04-09",
+  stop_label: "Appomattox Court House",
+  event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:,d}",
+  events: [
+    {label: "Shiloh", start: "1862-04-06", stop: "1862-04-07", confederate: 1728, union: 1754},
+    {label: "Seven Days Battles", start: "1862-06-25", stop: "1862-07-01", confederate: 3494, union: 1734},
+    {label: "Second Bull Run", start: "1862-08-28", stop: "1862-08-30", confederate: 1481, union: 1724},
+    {label: "Antietam", start: "1862-09-17", stop: "1862-09-17", confederate: 1546, union: 2108},
+    {label: "Fredericksburg", start: "1862-12-11", stop: "1862-12-15", confederate: 608, union: 1284},
+    {label: "Stones River", start: "1862-12-31", stop: "1863-01-02", confederate: 1294, union: 1677},
+    {label: "Chancellorsville", start: "1863-04-30", stop: "1863-05-06", confederate: 1665, union: 1606},
+    {label: "Gettysburg", start: "1863-07-01", stop: "1863-07-03", confederate: 3903, union: 3155},
+    {label: "Chickamauga", start: "1863-09-18", stop: "1863-09-20", confederate: 2312, union: 1657},
+    {label: "The Wilderness", start: "1864-05-05", stop: "1864-05-07", confederate: 1500, union: 2246},
+    {label: "Spotsylvania Court House", start: "1864-05-08", stop: "1864-05-21", confederate: 1500, union: 2725},
+    {label: "Cold Harbor", start: "1864-05-31", stop: "1864-06-12", confederate: 1000, union: 1845},
+  ],
+}
