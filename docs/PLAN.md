@@ -1,6 +1,6 @@
 # timeliner — Plan
 
-Status: milestones 1 and 2 done (2026-11-01). Milestone 3 is next.
+Status: milestones 1–3 done (2026-11-01). Milestone 4 is next.
 
 ## Milestones
 
@@ -9,7 +9,7 @@ Status: milestones 1 and 2 done (2026-11-01). Milestone 3 is next.
    - Done when: bad input gives a precise error message, and good input is accepted.
 2. ✅ **Template and rich text.** f-string substitution plus markdown to styled blocks (paragraphs, lists, bold, italic).
    - Done when: unit tests cover the Civil War template and the edge cases (unknown field, braces, `*` in values).
-3. **Text measurement.** Embedded fonts, parley layout, box sizes.
+3. ✅ **Text measurement.** Embedded fonts, parley layout, box sizes.
 4. **Layout engine.** Pure geometry, the invariant checker, and unit tests that use fake box sizes. This includes dense clusters and events at both ends.
 5. **Rendering.** `vello_cpu` scene to PNG, then render the Civil War example end to end.
    - Done when: the output is checked visually by reading the PNG.

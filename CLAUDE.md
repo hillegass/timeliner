@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 timeliner [--style=<style.json>] <desc.json> <output.png>
 ```
 
-Status: milestones 1–2 of `docs/PLAN.md` are done: the tool loads and validates its input and builds each event's text, but doesn't render yet, and exits with code 2 after valid input. Add crates only when a milestone needs them.
+Status: milestones 1–3 of `docs/PLAN.md` are done: the tool loads and validates its input, builds each event's text, and measures it, but doesn't render yet, and exits with code 2 after valid input. Add crates only when a milestone needs them.
 
 ## Architecture
 
@@ -23,6 +23,7 @@ Status: milestones 1–2 of `docs/PLAN.md` are done: the tool loads and validate
 - `richtext.rs`: `Template::parse` turns `event_text` markdown (pulldown-cmark) into blocks of styled runs, merging adjacent same-style text and splitting it into literal and field pieces. `render` substitutes fields afterward, so values can't change formatting. Unsupported markdown is flattened to plain text.
 - `template.rs`: `{field:spec}` parsing and Python's format-spec mini-language. The test cases' expected values come from Python 3's `format()`; check new cases against Python the same way.
 - `datefmt.rs`: date display. strftime via jiff, but `%Y` is replaced by our own year text so years ≤ 0 read "N BCE". Partial dates without an explicit spec show only their input precision.
+- `text.rs`: parley text layout in points (scale 1). Fonts in `assets/fonts/` are compiled in with `include_bytes!` and registered with fontique, so they win over system fonts with the same name; system fonts remain available. `Fonts::rich` lays out each markdown block as its own parley layout (list markers are separate layouts in a hanging column) and widens the wrap width to the longest word when needed.
 - `units.rs`: length parsing (`pt`, `px`, `in`, `mm`, `cm`). A bare number is an error.
 - `examples/civil-war.json5`: the reference example, also loaded by a unit test.
 

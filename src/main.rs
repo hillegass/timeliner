@@ -5,6 +5,7 @@ mod diag;
 mod richtext;
 mod style;
 mod template;
+mod text;
 mod timepoint;
 mod units;
 
@@ -26,24 +27,33 @@ struct Cli {
     style: Option<PathBuf>,
 
     /// Timeline description (JSON5), or "-" to read stdin.
-    #[arg(value_name = "desc.json")]
-    desc: String,
+    #[arg(value_name = "desc.json", required_unless_present = "licenses")]
+    desc: Option<String>,
 
     /// Output PNG path, or "-" to write to stdout.
-    #[arg(value_name = "output.png")]
-    output: String,
+    #[arg(value_name = "output.png", required_unless_present = "licenses")]
+    output: Option<String>,
+
+    /// Print the licenses of the embedded fonts and exit.
+    #[arg(long)]
+    licenses: bool,
 }
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
+    if cli.licenses {
+        print!("{}", text::FONT_LICENSES);
+        return ExitCode::SUCCESS;
+    }
+    let desc_arg = cli.desc.expect("clap requires desc");
     let mut diags = Diagnostics::default();
 
-    let desc_name = if cli.desc == "-" {
+    let desc_name = if desc_arg == "-" {
         "<stdin>".to_string()
     } else {
-        cli.desc.clone()
+        desc_arg.clone()
     };
-    let desc_text = read_input(&cli.desc, &desc_name, &mut diags);
+    let desc_text = read_input(&desc_arg, &desc_name, &mut diags);
     let style_input = cli.style.as_ref().map(|p| {
         let name = p.display().to_string();
         let text = read_input(&name, &name, &mut diags);
@@ -60,15 +70,54 @@ fn main() -> ExitCode {
         .as_ref()
         .and_then(|d| content::event_texts(&desc_name, d, &mut diags));
 
-    report(&diags);
-    let (Some(_style), Some(desc), Some(_texts)) = (style, desc, texts) else {
+    let style_name = style_input
+        .as_ref()
+        .map_or("<default style>", |(n, _)| n.as_str());
+    let fonts = style.as_ref().and_then(|s| match text::Fonts::new(s) {
+        Ok(f) => Some(f),
+        Err(errors) => {
+            for e in errors {
+                diags.error(style_name, "", e);
+            }
+            None
+        }
+    });
+
+    let (Some(style), Some(desc), Some(texts), Some(mut fonts)) = (style, desc, texts, fonts)
+    else {
+        report(&diags);
         return ExitCode::FAILURE;
     };
 
+    // Measure each event's text; boxes add rect_margin on every side.
+    let max_text = (style.image_width / style.max_event_width - 2.0 * style.rect_margin) as f32;
+    let text_style = text::TextStyle {
+        family: &style.default_font_family,
+        mono_family: &style.monospace_font_family,
+        size: style.event_text_size as f32,
+        bold: false,
+        ink: text::Ink::default(),
+    };
+    let mut largest = (0.0f32, 0.0f32);
+    for (event, rich) in desc.events.iter().zip(&texts) {
+        let m = fonts.rich(rich, text_style, max_text);
+        if m.overflowed {
+            diags.warning(&desc_name, &event.path(), format!(
+                "a word is wider than the box limit (image_width / max_event_width), so the box was widened to {:.0}pt",
+                m.width as f64 + 2.0 * style.rect_margin
+            ));
+        }
+        largest.0 = largest.0.max(m.width);
+        largest.1 = largest.1.max(m.height);
+    }
+    report(&diags);
+
     // Rendering arrives in later milestones.
     eprintln!(
-        "timeliner: input is valid ({} events); rendering is not implemented yet",
-        desc.events.len()
+        "timeliner: input is valid ({} events, largest text {:.0}×{:.0}pt); rendering is not implemented yet",
+        desc.events.len(),
+        largest.0,
+        largest.1
     );
     ExitCode::from(2)
 }
