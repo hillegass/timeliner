@@ -7,5 +7,6 @@
   "text_color": "white",
   "timeline_color": "white",
   "marker_color": "#ffd60a",
+  "marker_size": "6pt",
   "connector_color": "#ffd60a"
 }
