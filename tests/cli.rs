@@ -101,6 +101,9 @@ fn renders_the_murder_example() {
     let o = timeliner(&["examples/murder.json", "-"], None);
     let stderr = String::from_utf8_lossy(&o.stderr);
     assert!(o.status.success(), "{stderr}");
-    assert!(stderr.contains("21 events") && stderr.contains("0 warnings"), "{stderr}");
+    assert!(
+        stderr.contains("21 events") && stderr.contains("0 warnings"),
+        "{stderr}"
+    );
     assert_eq!(png_size(&o.stdout).0, 2376);
 }
