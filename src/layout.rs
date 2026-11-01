@@ -67,8 +67,6 @@ pub struct Input {
     pub right_margin: f64,
     pub top_margin: f64,
     pub bottom_margin: f64,
-    /// Height of the title and subtitle, including the space below them.
-    pub header_height: f64,
     pub place: Place,
     pub marker_size: f64,
     pub connector_width: f64,
@@ -278,7 +276,7 @@ pub fn layout(input: &Input) -> Geometry {
         }
     }
 
-    let line_y = input.top_margin + input.header_height + extents[0];
+    let line_y = input.top_margin + extents[0];
     let height = line_y + extents[1] + input.bottom_margin;
     let to_y = |side: Side, d: f64| match side {
         Side::Above => line_y - d,
@@ -1022,7 +1020,6 @@ mod tests {
             right_margin: 48.0,
             top_margin: 64.0,
             bottom_margin: 64.0,
-            header_height: 50.0,
             place,
             marker_size: 12.0,
             connector_width: 1.0,
@@ -1103,7 +1100,7 @@ mod tests {
                 .all(|e| (e.rect.y1 - g.events[0].rect.y1).abs() < 0.01)
         );
         assert!(
-            (g.line_y - (64.0 + 50.0 + 26.0 + 40.0)).abs() < 0.01,
+            (g.line_y - (64.0 + 26.0 + 40.0)).abs() < 0.01,
             "{}",
             g.line_y
         );

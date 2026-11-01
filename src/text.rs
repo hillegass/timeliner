@@ -140,7 +140,7 @@ impl Fonts {
         b.build(text)
     }
 
-    /// Lays out plain text (titles, end labels), wrapped at `max_width` if given.
+    /// Lays out plain text (such as list markers), wrapped at `max_width` if given.
     pub fn plain(&mut self, text: &str, style: TextStyle, max_width: Option<f32>) -> Layout<Ink> {
         let mut layout = self.layout(text, style, &[]);
         layout.break_all_lines(max_width);

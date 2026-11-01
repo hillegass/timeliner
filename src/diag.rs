@@ -40,6 +40,17 @@ pub fn unknown_key(key: &str, known: &[&str]) -> String {
     }
 }
 
+/// `unknown_key` for the top level of the description and style files, which
+/// also explains that titles were removed.
+pub fn unknown_setting(key: &str, known: &[&str]) -> String {
+    if key.starts_with("title") || key.starts_with("subtitle") {
+        return format!(
+            "unknown key \"{key}\": timeliner doesn't draw titles; put the title in the document or page that shows the image"
+        );
+    }
+    unknown_key(key, known)
+}
+
 fn suggest<'a>(word: &str, candidates: &[&'a str]) -> Option<&'a str> {
     // Allow roughly one edit per three characters, and at least two.
     let limit = (word.chars().count() / 3).max(2);

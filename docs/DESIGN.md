@@ -28,7 +28,7 @@ The output is positioned glyph runs that go straight into vello's glyph drawing 
 How we use it:
 
 - Each block of event text (a paragraph or a list item) is one parley layout. Lists are laid out by our code: the bullet or number is a separate layout, and the item text is indented next to it. Parley doesn't know about markdown lists.
-- Titles and labels are single parley layouts. The rotated start and stop labels are the same layout drawn with a 90° rotation.
+- The start and stop labels are laid out like event text and drawn with a 90° rotation.
 - **Fonts:** embed Open Sans and a monospace font, Inconsolata (both SIL OFL), in the binary and register them with parley. Inconsolata has no italic, so italic code text is drawn with a synthetic slant. Then output is the same on every machine, and the tool never depends on what fonts are installed, which matters for agents. Font files are the static TTFs from the upstream Google Fonts repos (Open Sans regular/bold/italic/bold italic, Inconsolata regular/bold). They live in `assets/fonts/` with their `OFL.txt` license files and are included with `include_bytes!`. The OFL requires the license to travel with the font, so `timeliner --licenses` prints it. System fonts are also allowed. fontique's system collection is used alongside the embedded fonts, and a family name is resolved embedded-first, so `"Open Sans"` always means the bundled copy. A family found nowhere is an error that suggests the closest installed names. Output that uses system fonts is only reproducible on machines that have the same fonts.
 
 ## Color: yes, `color`, though it comes in anyway
@@ -67,7 +67,7 @@ Because substitution happens after parsing, values containing `*` or `_` can't c
 args ─► load desc + style (JSON5 → serde structs, defaults merged, validated)
      ─► build event text: markdown parse → substitute fields → rich text blocks
      ─► measure: parley layout for each text block → box sizes
-     ─► layout: positions of title, line, markers, boxes, connectors (pure geometry, no rendering)
+     ─► layout: positions of line, markers, boxes, connectors (pure geometry, no rendering)
      ─► render: geometry → vello_cpu scene → pixmap → PNG bytes → file or stdout
 ```
 
@@ -94,7 +94,7 @@ Implemented in `src/layout.rs` as pure geometry in points, with no fonts or pixe
      - *How a candidate is scored:* the height it adds, a jog cost, and a look-ahead cost for each not-yet-placed marker on this side that the box covers. A covered marker forces its event to jog or move out.
    - **A staircase** that is always clean unless markers nearly coincide, at the cost of height. It works right to left; each box hangs straight just beyond the boxes and connectors beneath it. Boxes that must shift left at the right margin jog left past the covering boxes, each in a lower lane, so the jogs nest instead of crossing.
    - **Local improvement** runs on each result: each box in turn is taken out and put back in its best clean spot given all the others, and the change is kept if the side's score improves. This repeats until nothing improves (at most 4 passes). It fixes choices the greedy search couldn't see past.
-6. **Vertical stacking:** the line's y is `top_margin` + header + the farthest extent above the line. The page height adds the farthest extent below the line plus `bottom_margin`.
+6. **Vertical stacking:** the line's y is `top_margin` + the farthest extent above the line. The page height adds the farthest extent below the line plus `bottom_margin`.
 7. **Checker:** `check_side` reports boxes that overlap or leave the margins, connectors that touch or cross, and connectors that cross another event's box. The layout is drawn regardless, and each problem becomes a warning.
 
 The Civil War example is a good stress test: Wilderness (May 5), Spotsylvania (May 8–21), and Cold Harbor (May 31, 1864) are close together near the right end. At the default width, one day is about 0.48 pt, so the Wilderness and Spotsylvania markers are only about 1.4 pt apart. With `event_text_place: "alternating"` they land on opposite sides, which is fine. With `"above"`, their markers overlap and their connectors can't be kept apart, so this should produce a warning, not a failure.

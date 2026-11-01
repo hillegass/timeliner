@@ -22,14 +22,6 @@ pub const DEFAULT_STYLE: &str = r##"{
   bottom_margin: "32pt",
   left_margin: "48pt",
   right_margin: "48pt",
-  title: "center",
-  title_size: "24pt",
-  title_bold: true,
-  title_color: "#1f3a68",
-  subtitle: "center",
-  subtitle_size: "18pt",
-  subtitle_bold: true,
-  subtitle_color: "#1f3a68",
   event_text_place: "alternating",
   rect_line_color: "black",
   rect_fill_color: "#ebebeb",
@@ -51,13 +43,6 @@ pub const DEFAULT_STYLE: &str = r##"{
   event_text_size: "10pt",
 }
 "##;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Align {
-    Left,
-    Center,
-    Right,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Place {
@@ -89,14 +74,6 @@ pub struct Style {
     pub bottom_margin: f64,
     pub left_margin: f64,
     pub right_margin: f64,
-    pub title: Align,
-    pub title_size: f64,
-    pub title_bold: bool,
-    pub title_color: Color,
-    pub subtitle: Align,
-    pub subtitle_size: f64,
-    pub subtitle_bold: bool,
-    pub subtitle_color: Color,
     pub event_text_place: Place,
     pub rect_line_color: Color,
     pub rect_fill_color: Color,
@@ -141,7 +118,7 @@ pub fn load(user: Option<(&str, &str)>, diags: &mut Diagnostics) -> Option<Style
             if defaults.contains_key(&key) {
                 merged.insert(key, value);
             } else {
-                diags.error(name, &key, diag::unknown_key(&key, &known));
+                diags.error(name, &key, diag::unknown_setting(&key, &known));
             }
         }
     }
@@ -165,14 +142,6 @@ pub fn load(user: Option<(&str, &str)>, diags: &mut Diagnostics) -> Option<Style
         bottom_margin: r.length("bottom_margin"),
         left_margin: r.length("left_margin"),
         right_margin: r.length("right_margin"),
-        title: r.align("title"),
-        title_size: r.length("title_size"),
-        title_bold: r.boolean("title_bold"),
-        title_color: r.color("title_color"),
-        subtitle: r.align("subtitle"),
-        subtitle_size: r.length("subtitle_size"),
-        subtitle_bold: r.boolean("subtitle_bold"),
-        subtitle_color: r.color("subtitle_color"),
         event_text_place: r.choice(
             "event_text_place",
             &[
@@ -337,17 +306,6 @@ impl Reader<'_> {
         }
     }
 
-    fn align(&mut self, key: &str) -> Align {
-        self.choice(
-            key,
-            &[
-                ("left", Align::Left),
-                ("center", Align::Center),
-                ("right", Align::Right),
-            ],
-        )
-    }
-
     fn choice<T: Copy>(&mut self, key: &str, options: &[(&str, T)]) -> T {
         let names: Vec<String> = options.iter().map(|(n, _)| format!("\"{n}\"")).collect();
         if let Value::String(s) = self.get(key)
@@ -420,14 +378,14 @@ mod tests {
     #[test]
     fn reports_every_error() {
         let (s, d) = load_text(
-            r#"{marker_colour: "red", marker_size: 12, title: "centered", background: "notacolor"}"#,
+            r#"{marker_colour: "red", marker_size: 12, marker: "circle", background: "notacolor"}"#,
         );
         assert!(s.is_none());
         let all = d.errors.join("\n");
         assert_eq!(d.errors.len(), 4, "{all}");
         assert!(all.contains("did you mean \"marker_color\""));
         assert!(all.contains("marker_size: 12 needs a unit"));
-        assert!(all.contains("title: expected one of \"left\", \"center\", \"right\""));
+        assert!(all.contains("marker: expected one of \"dot\", \"square\""));
         assert!(all.contains("background: \"notacolor\" is not a color"));
     }
 

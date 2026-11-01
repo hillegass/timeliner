@@ -10,11 +10,13 @@ This text could go in a system prompt, a `SKILL.md`, or a tool definition's `des
 >
 > Usage: `timeliner [--style=style.json] desc.json out.png`. Use `-` for the input to read from stdin, or for the output to write the PNG to stdout.
 >
-> `desc.json` has `title`, `subtitle`, optional `start`/`stop` (ISO dates, the ends of the timeline; a missing end is drawn as an arrow), optional `start_label`/`stop_label`, `datetime_format` (strftime), and `events`. Each event is `{"label", "start", "stop"?, ...}` plus any extra fields you want to show. Set `shows_stop: true` (top level, or per event) to draw each event's start–stop range on the line.
+> `desc.json` has optional `start`/`stop` (ISO dates, the ends of the timeline; a missing end is drawn as an arrow), optional `start_label`/`stop_label`, `datetime_format` (strftime), and `events`. Each event is `{"label", "start", "stop"?, ...}` plus any extra fields you want to show. Set `shows_stop: true` (top level, or per event) to draw each event's start–stop range on the line.
 >
 > The text in each event's box comes from the `event_text` template in desc.json (default: the bold label, then the date). It is markdown (bold, italic, `` `code` ``, `-` and `1.` lists) with Python-style fields such as `{label}`, `{start}`, and `{casualties:,d}`. Every field the template uses must exist on every event.
 >
 > Run `timeliner --print-example` for a complete working example and `timeliner --print-default-style` for every style key. The image is 1584 px wide by default and exactly as tall as its contents. Read the PNG afterwards to check it.
+>
+> The image has no title; put the title and caption in the surrounding document.
 >
 > Errors name the JSON path at fault (e.g. `events[3].start: invalid date "1862-13-01"`). Fix the input and run it again.
 

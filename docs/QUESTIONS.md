@@ -37,7 +37,7 @@ Answer: **The whole image width.** `linelength` is renamed to `image_width`, and
 Answer: Embed Open Sans and Inconsolata. Family names may also refer to **installed system fonts** (Aaron, 2026-11-01). Embedded fonts win on a name clash; an unknown family is an error.
 
 **Q10. Other values for enum-like keys.** What other values are allowed?
-- ~~`title` / `subtitle`~~ Answered: `"left"`, `"center"`, `"right"`. Default `"center"` (Aaron, 2026-11-01).
+- ~~`title` / `subtitle`~~ Answered: `"left"`, `"center"`, `"right"`. Later superseded: titles were removed entirely; the surrounding document supplies them (Aaron, 2026-11-01).
 - ~~`marker`~~ Answered: `"dot"`, `"square"`, `"diamond"`, `"bar"`, `"none"` (Aaron, 2026-11-01).
 - ~~`alternating: false`~~ Answered: replaced by `event_text_place`: `"alternating"` | `"above"` | `"below"` (Aaron, 2026-11-01).
 Answer: All parts answered (see above).

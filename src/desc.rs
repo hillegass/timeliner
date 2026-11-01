@@ -9,8 +9,6 @@ use crate::timepoint::{self, TimePoint, kind};
 pub const DEFAULT_EVENT_TEXT: &str = "**{label}**\n\n{start}";
 
 const TOP_KEYS: &[&str] = &[
-    "title",
-    "subtitle",
     "datetime_format",
     "time_zone",
     "start",
@@ -26,8 +24,6 @@ const TOP_KEYS: &[&str] = &[
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Desc {
-    pub title: Option<String>,
-    pub subtitle: Option<String>,
     pub datetime_format: Option<String>,
     pub time_zone: Option<TimeZone>,
     pub start: Option<TimePoint>,
@@ -76,12 +72,11 @@ pub fn load(file: &str, text: &str, diags: &mut Diagnostics) -> Option<Desc> {
 
     for key in map.keys() {
         if !TOP_KEYS.contains(&key.as_str()) {
-            r.diags.error(file, key, diag::unknown_key(key, TOP_KEYS));
+            r.diags
+                .error(file, key, diag::unknown_setting(key, TOP_KEYS));
         }
     }
 
-    let title = r.opt_string(&map, "title", "title");
-    let subtitle = r.opt_string(&map, "subtitle", "subtitle");
     let datetime_format = r.opt_string(&map, "datetime_format", "datetime_format");
     let time_zone = r.opt_string(&map, "time_zone", "time_zone").and_then(|name| {
         match jiff::tz::db().get(&name) {
@@ -145,8 +140,6 @@ pub fn load(file: &str, text: &str, diags: &mut Diagnostics) -> Option<Desc> {
     // reported alongside structural ones.
     let structural_errors = diags.errors.len() > errors_before;
     let mut desc = Desc {
-        title,
-        subtitle,
         datetime_format,
         time_zone,
         start,
@@ -460,7 +453,7 @@ mod tests {
     #[test]
     fn structural_errors() {
         let all = errors(
-            r#"{titel: "x", start_label: "a", events: [
+            r#"{stat: "x", title: "T", start_label: "a", events: [
                 {start: "1862-01-01"},
                 {label: "x", start: "1862-13-01"},
                 {label: "y", start: "1862-01-01", extra: [1, 2]},
@@ -468,7 +461,8 @@ mod tests {
             ]}"#,
         );
         assert!(
-            all.contains("unknown key \"titel\" (did you mean \"title\"?)"),
+            all.contains("unknown key \"stat\" (did you mean \"start\"?)")
+                && all.contains("title\": timeliner doesn't draw titles"),
             "{all}"
         );
         assert!(

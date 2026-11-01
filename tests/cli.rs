@@ -51,7 +51,7 @@ fn renders_the_civil_war_example() {
 fn stdin_to_stdout() {
     let o = timeliner(
         &["-", "-"],
-        Some(r#"{title: "T", start: 2000, stop: 2010, events: [{label: "a", start: 2005}]}"#),
+        Some(r#"{start: 2000, stop: 2010, events: [{label: "a", start: 2005}]}"#),
     );
     let stderr = String::from_utf8_lossy(&o.stderr);
     assert!(o.status.success(), "{stderr}");

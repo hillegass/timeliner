@@ -1,7 +1,7 @@
 // The Civil War example from the original design discussion, as valid JSON5.
+// timeliner draws no title; the surrounding document supplies one, such as
+// "Twelve Deadliest Civil War Battles: Representing 45 thousand killed".
 {
-  title: "Twelve Deadliest Civil War Battles",
-  subtitle: "Representing 45 thousand killed",
   datetime_format: "%b %-d, %Y",
   start: "1861-04-12",
   start_label: "Fort Sumter",

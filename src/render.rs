@@ -8,7 +8,7 @@ use vello_cpu::kurbo::{Affine, BezPath, Cap, Join, Point, Rect, RoundedRect, Sha
 use vello_cpu::{Glyph, Pixmap, RenderContext, Resources};
 
 use crate::layout::{EventGeom, Geometry};
-use crate::plan::{Placed, Plan};
+use crate::plan::Plan;
 use crate::style::{Color, Marker, Style};
 use crate::text::{Ink, Measured};
 
@@ -59,9 +59,6 @@ pub fn render(plan: &Plan, style: &Style) -> Result<Vec<u8>, String> {
     }
     if let (Some(r), Some(m)) = (g.stop_label, &plan.stop_label) {
         d.rotated_label(r, m);
-    }
-    for p in [&plan.title, &plan.subtitle].into_iter().flatten() {
-        d.placed(p);
     }
 
     let mut pixmap = Pixmap::new(w, h);
@@ -211,10 +208,6 @@ impl Drawer<'_> {
                 at * Affine::translate((f64::from(p.x), f64::from(p.y))),
             );
         }
-    }
-
-    fn placed(&mut self, p: &Placed) {
-        self.text(&p.layout, Affine::translate((p.x, p.y)));
     }
 
     /// Draws a parley layout whose top-left corner is at `at` (in points).

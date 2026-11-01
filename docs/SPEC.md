@@ -4,7 +4,9 @@ Status: **draft**. All questions in `QUESTIONS.md` are answered. Defaults Claude
 
 ## Purpose
 
-`timeliner` is a command-line tool, mainly for Claude agents, that renders a horizontal timeline as a PNG. The look follows Vizzlo-style timelines: a title, a horizontal line, a marker per event, and boxed event descriptions that alternate above and below the line.
+`timeliner` is a command-line tool, mainly for Claude agents, that renders a horizontal timeline as a PNG. The look follows Vizzlo-style timelines: a horizontal line, a marker per event, and boxed event descriptions that alternate above and below the line.
+
+timeliner draws no title or subtitle. The document or web page that shows the image supplies them (Aaron, 2026-11-01). A `title` or `subtitle` key, or any `title_*`/`subtitle_*` style key, is an error that says so.
 
 ## Command line
 
@@ -31,8 +33,6 @@ All keys in both files use snake_case. Both files are parsed as JSON5 (unquoted 
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `title` | string | no | Title text |
-| `subtitle` | string | no | Subtitle text |
 | `datetime_format` | string | no | strftime format used when a date is substituted into text |
 | `time_zone` | string | no | IANA zone name. When set, all times are displayed in this zone |
 | `start` | date | no | Left end of the timeline. If omitted, the line is open-ended on the left (arrow) |
@@ -41,7 +41,7 @@ All keys in both files use snake_case. Both files are parsed as JSON5 (unquoted 
 | `stop_label` | string | no | Label at the right end. Only allowed with `stop` |
 | `event_text` | string | no | Template for every event box's contents. Default: `"**{label}**\n\n{start}"`. It lives here, not in the style, because its fields are tied to the data |
 | `shows_stop` | bool | no (default `false`) | Default for every event: draw a range from `start` to `stop` (see below) |
-| `events` | array | yes | Events (see below). May be empty: the image then shows just the title, the line, and its end labels. An empty list needs both `start` and `stop`, because an open end has no event to extend to |
+| `events` | array | yes | Events (see below). May be empty: the image then shows just the line and its end labels. An empty list needs both `start` and `stop`, because an open end has no event to extend to |
 
 Events may be listed in any order. They are sorted by `start` (by actual instant), and events with equal starts keep their input order (stable sort). Error messages still use the original `events[i]` index.
 
@@ -106,12 +106,6 @@ A length without a unit (`12` or `"12"`) is an error, e.g. `marker_size: "12" ne
 | `background` | `"white"` | Background color |
 | `top_margin` / `bottom_margin` | `"32pt"` | Page margins |
 | `left_margin` / `right_margin` | `"48pt"` | Page margins |
-| `title` | `"center"` | Title alignment: `"left"`, `"center"`, or `"right"` (within the margins) |
-| `title_size` / `title_bold` | `"24pt"` / `true` | |
-| `title_color` | `"#1f3a68"` (dark blue) | Title text color |
-| `subtitle` | `"center"` | Subtitle alignment: `"left"`, `"center"`, or `"right"` |
-| `subtitle_size` / `subtitle_bold` | `"18pt"` / `true` | |
-| `subtitle_color` | `"#1f3a68"` (dark blue) | Subtitle text color |
 | `event_text_place` | `"alternating"` | Where event boxes go: `"alternating"` (above, below, above, …), `"above"`, or `"below"` |
 | `rect_line_color` / `rect_fill_color` | `"black"` / `"#ebebeb"` (light gray) | Event box stroke and fill |
 | `rect_line_width` | `"1pt"` | Event box stroke width |
@@ -155,7 +149,6 @@ event_text: "**{label}: {start}**\n\n- North: {union:,d}\n- South: {confederate:
 
 - **Width:** `image_width × pixels_per_point`, which is 1584 px with the defaults.
 - **Height:** exactly `top_margin` + content + `bottom_margin`. There is no minimum height, and the content is never empty, because the timeline is always drawn.
-- **Title and subtitle:** at the top, aligned per the `title`/`subtitle` style keys, subtitle below the title. If the description omits `title` or `subtitle`, that line is not drawn and takes no space.
 - **Timeline:** a solid horizontal line from the left margin to the right margin, drawn in `timeline_color` at `timeline_width`. It never fades. Time maps linearly from the left end to the right end.
 - **Open ends:** if `start` (or `stop`) is omitted:
   - the line runs a little past the earliest (or latest) event: 5% of the event span, or one day if every event has the same date;
