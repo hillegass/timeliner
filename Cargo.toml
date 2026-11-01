@@ -2,6 +2,12 @@
 name = "timeliner"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.89"
+description = "Render timelines of dated events as PNG images; designed for use by AI agents"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["timeline", "png", "chart", "cli", "agents"]
+categories = ["command-line-utilities", "visualization"]
 
 [dependencies]
 clap = { version = "4.6.7", features = ["derive"] }
