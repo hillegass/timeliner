@@ -20,8 +20,8 @@ pub const DEFAULT_STYLE: &str = r##"{
   background: "white",
   top_margin: "16pt",
   bottom_margin: "16pt",
-  left_margin: "48pt",
-  right_margin: "48pt",
+  left_margin: "24pt",
+  right_margin: "24pt",
   event_text_place: "alternating",
   rect_line_color: "#1f3a68",
   rect_fill_color: "#e3ecf7",
@@ -391,7 +391,7 @@ mod tests {
 
     #[test]
     fn margins_must_leave_room() {
-        let (s, d) = load_text(r#"{image_width: "90pt"}"#);
+        let (s, d) = load_text(r#"{image_width: "40pt"}"#);
         assert!(s.is_none());
         assert!(d.errors[0].contains("leaves no room"));
     }
