@@ -1011,6 +1011,7 @@ dependencies = [
  "jiff",
  "json5",
  "parley",
+ "png",
  "pulldown-cmark",
  "serde_json",
  "vello_cpu",

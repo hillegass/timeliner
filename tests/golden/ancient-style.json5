@@ -1,0 +1,7 @@
+{
+  pixels_per_point: 1,
+  event_text_place: "above",
+  marker: "square",
+  connector_dashed: true,
+  rounded_corner: "8pt",
+}

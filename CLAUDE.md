@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 timeliner [--style=<style.json>] <desc.json> <output.png>
 ```
 
-Status: milestones 1–6 of `docs/PLAN.md` are done: the tool renders PNGs end to end and is self-describing for agents. Add crates only when a milestone needs them.
+Status: all milestones in `docs/PLAN.md` are done. Add crates only when a milestone needs them.
 
 ## Architecture
 
@@ -28,6 +28,7 @@ Status: milestones 1–6 of `docs/PLAN.md` are done: the tool renders PNGs end t
 - `layout.rs`: pure geometry (see `docs/DESIGN.md`, "Layout algorithm"). Tests use made-up box sizes; `random_layouts_are_sound` checks the hard rules (no overlapping boxes, inside the margins, connectors orthogonal and meeting the box's left edge) on random input. Run `cargo test --release layout` to time it; `many_events` prints the time for 60 events.
 - `render.rs`: draws a `Plan` with vello_cpu, in points under a `pixels_per_point` transform, and encodes the PNG. Text is drawn from parley glyph runs. End labels are rotated −90°. vello_cpu limits images to 65,535 px per side.
 - `tests/cli.rs`: end-to-end tests that run the binary.
+- `tests/golden.rs`: golden-image tests. Each case in `CASES` is rendered at 1 px/pt and compared with `tests/golden/<name>.png`, tolerating small per-pixel differences between CPUs. When output changes on purpose, regenerate with `TIMELINER_UPDATE_GOLDEN=1 cargo test --test golden`, look at the new PNGs, and commit them. Failures write the actual image and a red-pixel diff to `target/golden-failures/`.
 - `schema.rs`: JSON Schemas printed by `--schema`. Tests check their keys against `DEFAULT_STYLE` and `desc::TOP_KEYS`, so add new keys in both places.
 - `main.rs`'s `GUIDE` is the `--help` text agents learn from; keep it, `docs/TOOL_DESCRIPTION.md`, and `skill/timeliner/SKILL.md` in sync with the formats.
 - `units.rs`: length parsing (`pt`, `px`, `in`, `mm`, `cm`). A bare number is an error.
@@ -51,5 +52,6 @@ Render an example and read the PNG to look at it: `cargo run --release -- exampl
 - Run: `cargo run -- <args>`
 - Test all: `cargo test`
 - Run a single test: `cargo test <test_name>` (add `-- --exact` to match the full path exactly)
+- Update golden images after an intended output change: `TIMELINER_UPDATE_GOLDEN=1 cargo test --test golden`
 - Lint: `cargo clippy --all-targets`
 - Format: `cargo fmt`

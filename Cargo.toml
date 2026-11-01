@@ -16,3 +16,6 @@ vello_cpu = "0.3.0"
 # The layout search is slow unoptimized; optimize test builds.
 [profile.test]
 opt-level = 2
+
+[dev-dependencies]
+png = "0.18"

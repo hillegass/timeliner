@@ -1,0 +1,17 @@
+// Covers what the other cases don't: an open start, BCE and partial dates,
+// ranges, numbered lists, code spans, and italics. Note -2559 is 2560 BCE
+// (year 0 is 1 BCE).
+{
+  stop: 2000,
+  stop_label: "Millennium",
+  shows_stop: true,
+  event_text: "**{label}**\\\n_{start}_\n\n1. {first}\n2. {second}\n\n`{code}`",
+  events: [
+    {label: "Great Pyramid", start: -2559, first: "Khufu", second: "Giza", code: "c. 2560 BCE"},
+    {label: "Caesar crosses the Rubicon", start: "-0048-01", first: "Gaul", second: "Rome", code: "alea iacta est"},
+    {label: "Charlemagne crowned", start: "0800-12-25", first: "Pope Leo III", second: "Old St. Peter's", code: ""},
+    {label: "Fall of Rome", start: 476, first: "Odoacer", second: "Ravenna", code: "476"},
+    {label: "Norman Conquest", start: "1066-10", stop: 1087, first: "Hastings", second: "Domesday", code: "1066"},
+    {label: "Printing press", start: 1440, first: "Gutenberg", second: "Mainz", code: ""},
+  ],
+}

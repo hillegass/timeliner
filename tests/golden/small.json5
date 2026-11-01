@@ -1,0 +1,2 @@
+// Golden tests render at 1 px/pt to keep the reference images small.
+{pixels_per_point: 1}

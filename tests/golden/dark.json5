@@ -1,0 +1,16 @@
+// examples/darkmode.json with the built-in fonts, so the output doesn't
+// depend on installed fonts.
+{
+  pixels_per_point: 1,
+  background: "#2b2b2b",
+  rect_fill_color: "black",
+  rect_line_color: "#ff9500",
+  text_color: "white",
+  timeline_color: "white",
+  marker_color: "#ff9500",
+  marker_size: "6pt",
+  marker: "diamond",
+  rounded_corner: "0pt",
+  rect_margin: "4pt",
+  connector_color: "#ff9500",
+}
