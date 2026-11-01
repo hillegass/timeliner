@@ -10,5 +10,6 @@
   "marker_size": "6pt",
   "marker": "diamond",
   "rounded_corner": "0pt",
+  "rect_margin": "4pt",
   "connector_color": "#ff9500"
 }
